@@ -1053,17 +1053,17 @@ function openDetail(routeNo){
   if(gpxAppsEl) gpxAppsEl.innerHTML=`
       <div class="gpx-app-row" onclick="openGpxApp('osmaps', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
         <span class="gpx-icon">🗺</span>
-        <div><div class="gpx-name">OS Maps</div><div class="gpx-hint">Downloads GPX to Downloads folder, then opens app to import</div></div>
+        <div><div class="gpx-name">OS Maps</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
         <span class="gpx-arrow">›</span>
       </div>
       <div class="gpx-app-row" onclick="openGpxApp('komoot', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
         <span class="gpx-icon">🏔</span>
-        <div><div class="gpx-name">Komoot</div><div class="gpx-hint">Downloads GPX to Downloads folder, then opens app to import</div></div>
+        <div><div class="gpx-name">Komoot</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
         <span class="gpx-arrow">›</span>
       </div>
       <div class="gpx-app-row" onclick="openGpxApp('outdooractive', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
         <span class="gpx-icon">🌿</span>
-        <div><div class="gpx-name">Outdooractive</div><div class="gpx-hint">Downloads GPX to Downloads folder, then opens app to import</div></div>
+        <div><div class="gpx-name">Outdooractive</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
         <span class="gpx-arrow">›</span>
       </div>
       <a class="gpx-app-row" href="https://connect.garmin.com/modern/course/import?url=${encodeURIComponent(r.gpxUrl)}" target="_blank" rel="noreferrer" style="border-bottom:1px solid #D6CFBF;">
@@ -1197,22 +1197,20 @@ function importRoutes(){
 function openGpxApp(app, gpxUrl, routeName){
   const enc = encodeURIComponent(gpxUrl);
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const appNames = {
+    osmaps: "OS Maps",
+    komoot: "Komoot",
+    outdooractive: "Outdooractive",
+  };
 
   if(isMobile){
-    // On mobile: download the GPX file first, then try the native app.
-    // User can then import from their Downloads folder into the app.
+    // On mobile: download the GPX file only.
+    // Auto-opening the app at the same time causes the download dialogue
+    // to be hidden behind the app before the user can confirm the save.
+    // User saves the file first, then opens the app and imports manually.
     downloadGpx(gpxUrl, routeName || "route");
-    // Brief delay then try native app URL — if installed it opens
-    setTimeout(()=>{
-      const appUrls = {
-        osmaps:       `osmaps://route?url=${enc}`,
-        komoot:       `komoot://tours/new?gpx=${enc}`,
-        outdooractive:`outdooractive://import?url=${enc}`,
-      };
-      if(appUrls[app]){
-        window.location = appUrls[app];
-      }
-    }, 1000);
+    // Show a brief instruction toast
+    showToast("GPX saved to Downloads — open " + appNames[app] + " and import the file");
   } else {
     // On desktop: download the GPX file, then open the app's import page.
     // The user imports the downloaded file manually.
@@ -1266,6 +1264,24 @@ async function downloadGpx(url, filename){
   }
 }
 
+function showToast(msg){
+  // Show a temporary notification message at the bottom of the screen
+  const existing = document.getElementById("ww-toast");
+  if(existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.id = "ww-toast";
+  toast.textContent = msg;
+  toast.style.cssText = [
+    "position:fixed","bottom:90px","left:50%","transform:translateX(-50%)",
+    "background:rgba(30,26,22,0.92)","color:#fff","padding:12px 18px",
+    "border-radius:10px","font-size:13px","font-family:Inter,sans-serif",
+    "max-width:85vw","text-align:center","z-index:9999",
+    "box-shadow:0 4px 20px rgba(0,0,0,0.3)","line-height:1.4",
+  ].join(";");
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 5000);
+}
+
 function closeImport(){
   document.getElementById("import-overlay").classList.remove("open");
 }
@@ -1289,10 +1305,12 @@ function toggleGpxApps(){
 function shareRoute(){
   if(!currentRoute)return;
   const r=currentRoute;
-  const url=window.location.href.split("?")[0]+`?route=${r.routeNo}`;
-  const text=`🥾 ${r.name} — ${fmtDist(r.distance)}, ${r.ascent||r.ascent===0?fmtAscent(r.ascent)+" ascent, ":""}${r.difficulty}\n${url}`;
+  // Use the permanent Vercel URL for sharing — works on any device
+  const baseUrl = "https://walking-wednesdays.vercel.app";
+  const url = `${baseUrl}?route=${r.routeNo}`;
+  const text = `🥾 ${r.name}\n${r.area} · ${fmtDist(r.distance)}${r.ascent?", "+fmtAscent(r.ascent)+" ascent":""} · ${r.difficulty}\n\nOpen walk: ${url}`;
   if(navigator.share){
-    navigator.share({title:r.name,text,url}).catch(()=>{});
+    navigator.share({title:r.name, text, url}).catch(()=>{});
   } else {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
   }
