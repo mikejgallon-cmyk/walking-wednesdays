@@ -1666,6 +1666,1863 @@ function toggleGpxApps(){
 function shareRoute(){
   if(!currentRoute)return;
   const r=currentRoute;
+  const baseUrl = "https://walking-wednesdays.vercel.app";
+  const url = `${baseUrl}?route=${r.routeNo}`;
+  const text = `🥾 ${r.name}\n${r.area} · ${fmtDist(r.distance)}${r.ascent?", "+fmtAscent(r.ascent)+" ascent":""} · ${r.difficulty}\n\nOpen walk: ${url}`;
+  // Use Web Share API on mobile (where it works reliably), WhatsApp fallback on desktop
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile && navigator.share){
+    navigator.share({title:r.name, text, url}).catch(()=>{
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+    });
+  } else {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll(".tab-btn").forEach((b,i)=>b.classList.toggle("active",["map","list"][i]===tab));
+  document.getElementById("map-view").classList.toggle("active",tab==="map");
+  document.getElementById("list-view").classList.toggle("active",tab==="list");
+  if(tab==="map"){
+    if(!leafletMap) setTimeout(initMap,100);
+    if(leafletMap) setTimeout(()=>leafletMap.invalidateSize(),50);
+  }
+}
+
+function setSort(field){
+  if(currentSort&&currentSort.field===field){
+    currentSort.dir=currentSort.dir==="asc"?"desc":"asc";
+  } else {
+    currentSort={field,dir:"asc"};
+  }
+  document.querySelectorAll(".sort-btn").forEach(btn=>{
+    btn.classList.remove("active","asc","desc");
+  });
+  const activeBtn=document.querySelector(`.sort-btn[onclick="setSort('${field}')"]`);
+  if(activeBtn){activeBtn.classList.add("active",currentSort.dir);}
+  const clearBtn=document.getElementById("clear-sort-btn");
+  if(clearBtn) clearBtn.style.display="inline-block";
+  const cab=document.getElementById("clear-all-btn");
+  if(cab) cab.style.display="block";
+  applyFilters();
+}
+
+function clearSort(){
+  currentSort=null;
+  document.querySelectorAll(".sort-btn").forEach(btn=>{
+    btn.classList.remove("active","asc","desc");
+  });
+  const clearBtn=document.getElementById("clear-sort-btn");
+  if(clearBtn) clearBtn.style.display="none";
+  applyFilters();
+}
+
+function resetFilters(){
+  document.getElementById("search-input").value="";
+  document.getElementById("area-filter").value="All Areas";
+  document.getElementById("diff-filter").value="Difficulty";
+  document.getElementById("start-filter").value="All Starts";
+  document.getElementById("dist-filter").value="All Distances";
+  const rb=document.getElementById("reset-btn");
+  if(rb) rb.style.display="none";
+  applyFilters();
+}
+
+function clearAll(){
+  // Reset everything: search, all filters, and sort
+  document.getElementById("search-input").value="";
+  document.getElementById("area-filter").value="All Areas";
+  document.getElementById("diff-filter").value="Difficulty";
+  document.getElementById("start-filter").value="All Starts";
+  document.getElementById("dist-filter").value="All Distances";
+  const rb=document.getElementById("reset-btn");
+  if(rb) rb.style.display="none";
+  const cab=document.getElementById("clear-all-btn");
+  if(cab) cab.style.display="none";
+  clearSort();
+}
+
+function toggleFilters(){
+  filtersOpen=!filtersOpen;
+  document.getElementById("filter-btn").textContent=filtersOpen?"Filter ▲":"Filter ▼";
+  document.getElementById("filter-btn").classList.toggle("open",filtersOpen);
+  document.getElementById("filter-row").classList.toggle("show",filtersOpen);
+  document.getElementById("sort-row").classList.toggle("show",filtersOpen);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AREA FILTER — populate
+// ─────────────────────────────────────────────────────────────────────────────
+function populateAreaFilter(){
+  const areas=[...new Set(ROUTES.map(r=>r.area).filter(Boolean))].sort();
+  const sel=document.getElementById("area-filter");
+  while(sel.options.length > 1) sel.remove(1);
+  areas.forEach(a=>{ const o=document.createElement("option"); o.textContent=a; sel.appendChild(o); });
+}
+
+function populateStartFilter(){
+  const starts=[...new Set(ROUTES.map(r=>r.start).filter(Boolean))].sort();
+  const sel=document.getElementById("start-filter");
+  while(sel.options.length > 1) sel.remove(1);
+  starts.forEach(s=>{ const o=document.createElement("option"); o.textContent=s; sel.appendChild(o); });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PWA INSTALL
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();installPromptEvent=e;
+  document.getElementById("install-btn").style.display="block";
+});
+function doInstall(){
+  if(installPromptEvent) installPromptEvent.prompt();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SERVICE WORKER
+// ─────────────────────────────────────────────────────────────────────────────
+if("serviceWorker" in navigator){
+  const sw=`self.addEventListener('install',e=>{e.waitUntil(caches.open('ww-v1').then(c=>c.addAll(['./'])));});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  const blob=new Blob([sw],{type:"application/javascript"});
+  navigator.serviceWorker.register(URL.createObjectURL(blob),{scope:"./"}).catch(()=>{});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DEEP LINK — open route from URL ?route=W001
+// ─────────────────────────────────────────────────────────────────────────────
+function checkDeepLink(){
+  const p=new URLSearchParams(window.location.search);
+  const rno=p.get("route");
+  if(rno&&ROUTES.find(r=>r.routeNo===rno)) openDetail(rno);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded",()=>{
+  populateAreaFilter();
+  populateStartFilter();
+  applyFilters();
+
+  // Always try to load weather — works fine from file:// in desktop Chrome.
+  // On Android file:// fetch is blocked, but we show a proper error via the
+  // catch block in loadAreaWeather() rather than blocking upfront.
+  loadAreaWeather();
+
+  // Map init — try immediately, then poll until Leaflet script is ready.
+  // Poll handles slow networks (especially mobile) where the Leaflet CDN
+  // script may not have finished loading when DOMContentLoaded fires.
+  if(window.L){
+    initMap();
+  } else {
+    let attempts = 0;
+    const poll = setInterval(()=>{
+      attempts++;
+      if(window.L){ clearInterval(poll); initMap(); }
+      else if(attempts > 30){ clearInterval(poll); showMapError(); }
+    }, 300);
+  }
+
+  checkDeepLink();
+});
+
+function showLocalFileWarning(){
+  // No longer called — kept as empty stub for safety
+}
+
+function showMapError(){
+  if(!leafletMap){
+    document.getElementById("leaflet-map").innerHTML =
+      `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:20px;text-align:center;">
+        <div style="font-size:36px">🗺</div>
+        <div style="font-size:14px;font-weight:700;color:#5C3D6E;font-family:Inter,sans-serif">Map failed to load</div>
+        <div style="font-size:12px;color:#8C8480;font-family:Inter,sans-serif;line-height:1.5">Check your internet connection and reload the page.</div>
+        <button onclick="location.reload()" style="margin-top:8px;padding:8px 16px;background:#5C3D6E;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">Reload</button>
+      </div>`;
+  }
+}
+
+// Close tooltip when clicking elsewhere on map
+document.getElementById("leaflet-map").addEventListener("click",e=>{
+  if(e.target===document.getElementById("leaflet-map")){
+    document.getElementById("map-tooltip").style.display="none";
+  }
+});
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Walking Wednesdays"/>
+<meta name="theme-color" content="#5C3D6E"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="application-name" content="Walking Wednesdays"/>
+<title>The Walking Wednesdays</title>
+
+<!-- Home screen icon for iOS (Apple Touch Icon) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+CjxyZWN0IHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjE2IiBmaWxsPSIjNUMzRDZFIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjM2IiByeD0iMTYiIHJ5PSIxOSIgZmlsbD0iI0U4RTBEOCIvPgo8cGF0aCBkPSJNMjUgMjggUTIwIDM1IDIyIDQ1IFEyNCA1MCAyMyA1OCBRMjIgNjMgMjQgNjciIHN0cm9rZT0iIzFBMUExQSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTU1IDI4IFE2MCAzNSA1OCA0NSBRNTYgNTAgNTcgNTggUTU4IDYzIDU2IDY3IiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNCAyOCBRMjggMTQgNDAgMTMgUTUyIDE0IDU2IDI4IFE1MiAyMCA0MCAxOSBRMjggMjAgMjQgMjggWiIgZmlsbD0iIzFBMUExQSIvPgo8bGluZSB4MT0iNDAiIHkxPSIxMyIgeDI9IjQwIiB5Mj0iMjIiIHN0cm9rZT0iI0U4RTBEOCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGVsbGlwc2UgY3g9IjM0IiBjeT0iMzQiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjMUExQTFBIi8+CjxlbGxpcHNlIGN4PSI0NiIgY3k9IjM0IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzFBMUExQSIvPgo8Y2lyY2xlIGN4PSIzNSIgY3k9IjMzIiByPSIwLjgiIGZpbGw9IndoaXRlIi8+CjxjaXJjbGUgY3g9IjQ3IiBjeT0iMzMiIHI9IjAuOCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDMwIFEzNCAyOC41IDM3IDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQzIDMwIFE0NiAyOC41IDUwIDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTM5IDM3IFE0MCA0MCA0MSAzNyIgc3Ryb2tlPSIjQjBBMDkwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSB4MT0iMzUiIHkxPSI0MyIgeDI9IjQ1IiB5Mj0iNDMiIHN0cm9rZT0iIzhBNzA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjggNTQgUTMyIDUwIDQwIDUyIFE0OCA1MCA1MiA1NCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMjggNTQgTDI2IDYwIEwzNCA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNNTIgNTQgTDU0IDYwIEw0NiA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNMjYgNjAgUTMwIDU2IDQwIDU4IFE1MCA1NiA1NCA2MCBMNTYgNzUgTDI0IDc1IFoiIGZpbGw9IiMxQTFBMUEiLz4KPC9zdmc+"/>
+<!-- Home screen icon for Android Chrome -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+CjxyZWN0IHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjE2IiBmaWxsPSIjNUMzRDZFIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjM2IiByeD0iMTYiIHJ5PSIxOSIgZmlsbD0iI0U4RTBEOCIvPgo8cGF0aCBkPSJNMjUgMjggUTIwIDM1IDIyIDQ1IFEyNCA1MCAyMyA1OCBRMjIgNjMgMjQgNjciIHN0cm9rZT0iIzFBMUExQSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTU1IDI4IFE2MCAzNSA1OCA0NSBRNTYgNTAgNTcgNTggUTU4IDYzIDU2IDY3IiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNCAyOCBRMjggMTQgNDAgMTMgUTUyIDE0IDU2IDI4IFE1MiAyMCA0MCAxOSBRMjggMjAgMjQgMjggWiIgZmlsbD0iIzFBMUExQSIvPgo8bGluZSB4MT0iNDAiIHkxPSIxMyIgeDI9IjQwIiB5Mj0iMjIiIHN0cm9rZT0iI0U4RTBEOCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGVsbGlwc2UgY3g9IjM0IiBjeT0iMzQiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjMUExQTFBIi8+CjxlbGxpcHNlIGN4PSI0NiIgY3k9IjM0IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzFBMUExQSIvPgo8Y2lyY2xlIGN4PSIzNSIgY3k9IjMzIiByPSIwLjgiIGZpbGw9IndoaXRlIi8+CjxjaXJjbGUgY3g9IjQ3IiBjeT0iMzMiIHI9IjAuOCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDMwIFEzNCAyOC41IDM3IDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQzIDMwIFE0NiAyOC41IDUwIDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTM5IDM3IFE0MCA0MCA0MSAzNyIgc3Ryb2tlPSIjQjBBMDkwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSB4MT0iMzUiIHkxPSI0MyIgeDI9IjQ1IiB5Mj0iNDMiIHN0cm9rZT0iIzhBNzA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjggNTQgUTMyIDUwIDQwIDUyIFE0OCA1MCA1MiA1NCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMjggNTQgTDI2IDYwIEwzNCA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNNTIgNTQgTDU0IDYwIEw0NiA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNMjYgNjAgUTMwIDU2IDQwIDU4IFE1MCA1NiA1NCA2MCBMNTYgNzUgTDI0IDc1IFoiIGZpbGw9IiMxQTFBMUEiLz4KPC9zdmc+"/>
+
+<!-- Web App Manifest (inline) for Android home screen install -->
+<script>
+const manifestData = {
+  name: "The Walking Wednesdays",
+  short_name: "Walking Wed",
+  description: "Walking routes for North Yorkshire and South Durham",
+  start_url: "https://walking-wednesdays.vercel.app",
+  display: "standalone",
+  background_color: "#5C3D6E",
+  theme_color: "#5C3D6E",
+  orientation: "portrait",
+  icons: [
+    {
+      src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+CjxyZWN0IHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjE2IiBmaWxsPSIjNUMzRDZFIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjM2IiByeD0iMTYiIHJ5PSIxOSIgZmlsbD0iI0U4RTBEOCIvPgo8cGF0aCBkPSJNMjUgMjggUTIwIDM1IDIyIDQ1IFEyNCA1MCAyMyA1OCBRMjIgNjMgMjQgNjciIHN0cm9rZT0iIzFBMUExQSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTU1IDI4IFE2MCAzNSA1OCA0NSBRNTYgNTAgNTcgNTggUTU4IDYzIDU2IDY3IiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNCAyOCBRMjggMTQgNDAgMTMgUTUyIDE0IDU2IDI4IFE1MiAyMCA0MCAxOSBRMjggMjAgMjQgMjggWiIgZmlsbD0iIzFBMUExQSIvPgo8bGluZSB4MT0iNDAiIHkxPSIxMyIgeDI9IjQwIiB5Mj0iMjIiIHN0cm9rZT0iI0U4RTBEOCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGVsbGlwc2UgY3g9IjM0IiBjeT0iMzQiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjMUExQTFBIi8+CjxlbGxpcHNlIGN4PSI0NiIgY3k9IjM0IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzFBMUExQSIvPgo8Y2lyY2xlIGN4PSIzNSIgY3k9IjMzIiByPSIwLjgiIGZpbGw9IndoaXRlIi8+CjxjaXJjbGUgY3g9IjQ3IiBjeT0iMzMiIHI9IjAuOCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDMwIFEzNCAyOC41IDM3IDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQzIDMwIFE0NiAyOC41IDUwIDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTM5IDM3IFE0MCA0MCA0MSAzNyIgc3Ryb2tlPSIjQjBBMDkwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSB4MT0iMzUiIHkxPSI0MyIgeDI9IjQ1IiB5Mj0iNDMiIHN0cm9rZT0iIzhBNzA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjggNTQgUTMyIDUwIDQwIDUyIFE0OCA1MCA1MiA1NCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMjggNTQgTDI2IDYwIEwzNCA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNNTIgNTQgTDU0IDYwIEw0NiA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNMjYgNjAgUTMwIDU2IDQwIDU4IFE1MCA1NiA1NCA2MCBMNTYgNzUgTDI0IDc1IFoiIGZpbGw9IiMxQTFBMUEiLz4KPC9zdmc+",
+      sizes: "192x192",
+      type: "image/svg+xml",
+      purpose: "any maskable"
+    },
+    {
+      src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+CjxyZWN0IHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjE2IiBmaWxsPSIjNUMzRDZFIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjM2IiByeD0iMTYiIHJ5PSIxOSIgZmlsbD0iI0U4RTBEOCIvPgo8cGF0aCBkPSJNMjUgMjggUTIwIDM1IDIyIDQ1IFEyNCA1MCAyMyA1OCBRMjIgNjMgMjQgNjciIHN0cm9rZT0iIzFBMUExQSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTU1IDI4IFE2MCAzNSA1OCA0NSBRNTYgNTAgNTcgNTggUTU4IDYzIDU2IDY3IiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNCAyOCBRMjggMTQgNDAgMTMgUTUyIDE0IDU2IDI4IFE1MiAyMCA0MCAxOSBRMjggMjAgMjQgMjggWiIgZmlsbD0iIzFBMUExQSIvPgo8bGluZSB4MT0iNDAiIHkxPSIxMyIgeDI9IjQwIiB5Mj0iMjIiIHN0cm9rZT0iI0U4RTBEOCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGVsbGlwc2UgY3g9IjM0IiBjeT0iMzQiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjMUExQTFBIi8+CjxlbGxpcHNlIGN4PSI0NiIgY3k9IjM0IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzFBMUExQSIvPgo8Y2lyY2xlIGN4PSIzNSIgY3k9IjMzIiByPSIwLjgiIGZpbGw9IndoaXRlIi8+CjxjaXJjbGUgY3g9IjQ3IiBjeT0iMzMiIHI9IjAuOCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDMwIFEzNCAyOC41IDM3IDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQzIDMwIFE0NiAyOC41IDUwIDMwIiBzdHJva2U9IiMxQTFBMUEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTM5IDM3IFE0MCA0MCA0MSAzNyIgc3Ryb2tlPSIjQjBBMDkwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSB4MT0iMzUiIHkxPSI0MyIgeDI9IjQ1IiB5Mj0iNDMiIHN0cm9rZT0iIzhBNzA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjggNTQgUTMyIDUwIDQwIDUyIFE0OCA1MCA1MiA1NCIgc3Ryb2tlPSIjMUExQTFBIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMjggNTQgTDI2IDYwIEwzNCA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNNTIgNTQgTDU0IDYwIEw0NiA1NSIgZmlsbD0iIzFBMUExQSIvPgo8cGF0aCBkPSJNMjYgNjAgUTMwIDU2IDQwIDU4IFE1MCA1NiA1NCA2MCBMNTYgNzUgTDI0IDc1IFoiIGZpbGw9IiMxQTFBMUEiLz4KPC9zdmc+",
+      sizes: "512x512",
+      type: "image/svg+xml",
+      purpose: "any maskable"
+    }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifestData)], {type: "application/json"});
+const manifestUrl = URL.createObjectURL(blob);
+const link = document.createElement("link");
+link.rel = "manifest";
+link.href = manifestUrl;
+document.head.appendChild(link);
+</script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;font-family:'Inter',sans-serif;background:#F7F4EF;-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
+  #app{display:flex;flex-direction:column;min-height:100vh;max-width:640px;margin:0 auto;background:#F7F4EF;}
+
+  /* ── Header ── */
+  #header{background:linear-gradient(135deg,#5C3D6E,#7B5595);padding:13px 14px 0;position:sticky;top:0;z-index:5000;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+  #header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  #logo-area{display:flex;align-items:center;gap:10px;}
+  #app-title{font-family:'Libre Baskerville',Georgia,serif;font-weight:700;color:#fff;font-size:18px;line-height:1.1;}
+  #app-title span{color:#E09B2A;}
+  #app-subtitle{font-size:10px;color:rgba(255,255,255,0.55);margin-top:2px;}
+  #tab-bar{display:flex;gap:3px;background:rgba(0,0,0,0.2);border-radius:8px 8px 0 0;padding:4px 4px 0;}
+  .tab-btn{flex:1;padding:9px 6px;border:none;border-radius:6px 6px 0 0;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif;}
+  .tab-btn.active{background:#F7F4EF;color:#5C3D6E;}
+  .tab-btn:not(.active){background:transparent;color:rgba(255,255,255,0.7);}
+  #install-btn{background:#B8760A;color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;flex-shrink:0;display:none;}
+
+  /* ── Search ── */
+  #search-bar{padding:10px 14px;background:#EDE8DF;border-bottom:1px solid #D6CFBF;}
+  #search-row{display:flex;gap:7px;margin-bottom:0;}
+  #search-input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid #D6CFBF;font-size:13px;background:#fff;color:#2D2820;outline:none;min-width:0;font-family:'Inter',sans-serif;}
+  #filter-btn{padding:9px 12px;border-radius:8px;border:1px solid #D6CFBF;background:#fff;color:#2D2820;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+  #filter-btn.open{background:#5C3D6E;color:#fff;border-color:#5C3D6E;}
+  #filter-row{display:none;gap:7px;margin-top:8px;}
+  #filter-row.show{display:flex;}
+  #filter-row select{flex:1;padding:7px 10px;border-radius:7px;border:1px solid #D6CFBF;font-size:12px;background:#fff;color:#2D2820;cursor:pointer;font-family:'Inter',sans-serif;}
+  #result-count{font-size:10px;color:#8C8480;text-align:right;flex:1;}
+  #sort-row{display:none;gap:5px;margin-top:8px;flex-wrap:wrap;}
+  #sort-row.show{display:flex;}
+  .sort-btn{padding:5px 10px;border-radius:6px;border:1px solid #D6CFBF;background:#fff;color:#2D2820;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+  .sort-btn.active{background:#5C3D6E;color:#fff;border-color:#5C3D6E;}
+  .sort-btn.active.desc::after{content:" ↓";}
+  .sort-btn.active.asc::after{content:" ↑";}
+  #reset-btn{padding:5px 10px;border-radius:6px;border:1px solid #C0392B;background:#fff;color:#C0392B;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+
+  /* ── Main ── */
+  #main{flex:1;overflow-y:auto;}
+  #map-view,#list-view{display:none;}
+  #map-view.active,#list-view.active{display:block;}
+  #map-view{padding:12px 14px;}
+  #list-view{padding:12px 14px;}
+
+  /* ── Weather bar ── */
+  #weather-bar{background:linear-gradient(135deg,rgba(91,143,168,0.18),rgba(92,61,110,0.08));border:1px solid rgba(91,143,168,0.3);border-radius:12px;padding:11px 13px;margin-bottom:12px;}
+  #weather-now{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  #weather-now-left{display:flex;align-items:center;gap:8px;}
+  #weather-emoji{font-size:24px;}
+  #weather-desc{font-size:13px;font-weight:700;color:#2D2820;}
+  #weather-sub{font-size:10px;color:#8C8480;}
+  #weather-temp{font-size:22px;font-weight:800;color:#2D2820;}
+  #weather-days{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+  .weather-day{background:rgba(255,255,255,0.65);border-radius:8px;padding:6px 4px;text-align:center;}
+  .wd-label{font-size:10px;font-weight:700;color:#5C3D6E;margin-bottom:1px;}
+  .wd-emoji{font-size:16px;margin-bottom:1px;}
+  .wd-temp{font-size:11px;font-weight:700;color:#2D2820;}
+  .wd-rain{font-size:10px;}
+  #weather-loading{font-size:12px;color:#8C8480;padding:10px 0;}
+
+  /* ── Map ── */
+  #leaflet-map{height:340px;width:100%;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  #map-tooltip{display:none;position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);border-radius:10px;padding:10px 14px;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:1px solid #D6CFBF;z-index:1000;}
+  #map-container{position:relative;}
+
+  /* ── Route list (compact under map) — removed ── */
+
+  /* ── List view cards ── */
+  #cards-grid{display:grid;gap:9px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));}
+  .route-card{background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid #D6CFBF;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;}
+  .route-card:hover,.route-card:active{border-color:#C4A8D4;box-shadow:0 6px 20px rgba(92,61,110,0.12);transform:translateY(-1px);}
+  .card-stripe{height:4px;}
+  .card-body{padding:13px 14px;}
+  .card-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#5C3D6E;margin-bottom:4px;}
+  .card-name{font-size:15px;font-family:'Libre Baskerville',Georgia,serif;color:#2D2820;font-weight:700;line-height:1.3;margin-bottom:7px;}
+  .card-stats{display:flex;gap:10px;font-size:12px;color:#8C8480;flex-wrap:wrap;}
+
+  /* ── Badge ── */
+  .badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+  .badge-sm{font-size:9px;padding:1px 6px;}
+
+  /* ── Detail sheet ── */
+  #detail-overlay{display:none;position:fixed;inset:0;z-index:9000;height:100dvh;}
+  #detail-overlay.open{display:block;}
+  #detail-backdrop{position:absolute;inset:0;background:rgba(30,26,22,0.55);backdrop-filter:blur(3px);}
+  #detail-sheet{position:absolute;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:#F7F4EF;border-radius:20px 20px 0 0;max-height:80dvh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease-out;}
+  @keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+  #detail-handle-row{display:flex;justify-content:center;padding:16px 0 0;}
+  #detail-handle{width:36px;height:4px;border-radius:2px;background:#D6CFBF;}
+
+  /* ── TOP CLOSE / INDEX BUTTON ── */
+  #detail-top-close{display:flex;align-items:center;justify-content:flex-start;padding:10px 16px 0;}
+  #top-close-btn{display:flex;align-items:center;gap:6px;background:#5C3D6E;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(92,61,110,0.25);}
+  #top-close-btn:hover,#top-close-btn:active{background:#7B5595;}
+
+  #detail-header{background:linear-gradient(135deg,#5C3D6E,#7B5595);margin:8px 16px 0;border-radius:12px;padding:16px 18px;color:#fff;}
+  #detail-eyebrow{font-size:11px;opacity:.7;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+  #detail-name{font-size:19px;font-family:'Libre Baskerville',Georgia,serif;font-weight:700;line-height:1.2;margin-bottom:10px;}
+  #detail-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;}
+  .dstat{background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 5px;text-align:center;}
+  .dstat-label{font-size:9px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+  .dstat-value{font-size:12px;font-weight:700;color:#fff;}
+  #detail-body{padding:14px 16px 32px;}
+  .section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#8C8480;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+  .detail-desc{font-size:13px;color:#2D2820;line-height:1.65;font-family:'Libre Baskerville',Georgia,serif;margin-bottom:14px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .info-box{background:#fff;border-radius:9px;padding:9px 11px;}
+  .info-box-label{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:2px;}
+  .info-box-value{font-size:12px;color:#2D2820;}
+
+  /* Car park panel */
+  .park-panel{background:#EEF4FF;border-radius:9px;padding:11px 13px;margin-bottom:12px;border-left:3px solid #5B8FA8;}
+  .park-name{font-size:13px;font-weight:700;color:#2D2820;margin-bottom:1px;}
+  .park-sub{font-size:11px;color:#8C8480;margin-bottom:5px;}
+  .park-row{font-size:12px;color:#2D2820;margin-bottom:3px;}
+  .park-row b{font-weight:700;}
+  .park-notes{font-size:11px;color:#8C8480;font-style:italic;margin-bottom:5px;}
+  .park-link{font-size:11px;font-weight:700;color:#5B8FA8;text-decoration:none;}
+
+  /* Bench panel */
+  .bench-panel{background:#F2F7EE;border-radius:9px;padding:12px 14px;margin-bottom:12px;border-left:4px solid #3A6B47;border:1px solid #C8DEC8;border-left:4px solid #3A6B47;}
+  .bench-text{font-size:12px;color:#2D2820;line-height:1.55;}
+
+  /* Action links */
+  .action-link{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#EAF4FF;border-radius:9px;border:1px solid rgba(91,143,168,0.35);text-decoration:none;margin-bottom:10px;}
+  .action-link-icon{font-size:20px;}
+  .action-link-info{flex:1;}
+  .action-link-title{font-size:13px;font-weight:700;color:#2D2820;}
+  .action-link-sub{font-size:11px;color:#8C8480;}
+  .action-link-cta{font-size:12px;font-weight:600;color:#5B8FA8;}
+
+  /* Pub finder — Google Maps link only */
+  .pub-link{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#F5F0E8;border-radius:9px;border:1px solid #D6CFBF;text-decoration:none;margin-bottom:10px;}
+
+  /* Weather in detail */
+  #detail-weather{margin-bottom:14px;}
+  .forecast-day{border-radius:10px;padding:11px 13px;margin-bottom:7px;border:1px solid #D6CFBF;}
+  .forecast-day.today{background:linear-gradient(135deg,rgba(91,143,168,0.12),rgba(92,61,110,0.06));border-color:rgba(91,143,168,0.4);}
+  .forecast-day:not(.today){background:#fff;}
+  .forecast-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+  .forecast-left{display:flex;align-items:center;gap:8px;}
+  .forecast-emoji{font-size:20px;}
+  .forecast-day-name{font-size:13px;font-weight:700;color:#2D2820;}
+  .forecast-desc{font-size:11px;color:#8C8480;}
+  .forecast-temp{font-size:17px;font-weight:800;color:#2D2820;}
+  .forecast-temp span{font-size:12px;color:#8C8480;font-weight:400;}
+  .forecast-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;}
+  .fstat{background:rgba(255,255,255,0.75);border-radius:7px;padding:5px 3px;text-align:center;}
+  .fstat-icon{font-size:13px;}
+  .fstat-label{font-size:8px;color:#8C8480;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
+  .fstat-value{font-size:10px;font-weight:700;line-height:1.2;margin-top:1px;}
+  .fstat-sub{font-size:9px;color:#8C8480;}
+  #detail-weather-loading{font-size:12px;color:#8C8480;padding:6px 0;}
+
+  /* Share + GPX */
+  .primary-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;border:none;}
+  .btn-share{background:#F0E8F8;color:#5C3D6E;border:1px solid #C4A8D4 !important;}
+  .btn-open{background:#5C3D6E;color:#fff;}
+  .btn-close{background:#EDE8DF;color:#8C8480;}
+  #gpx-apps{background:#fff;border-radius:10px;overflow:hidden;border:1px solid #D6CFBF;margin-bottom:8px;display:none;}
+  #gpx-apps.open{display:block;}
+  .gpx-app-row{display:flex;align-items:center;gap:10px;padding:12px 14px;text-decoration:none;border-bottom:1px solid #D6CFBF;}
+  .gpx-app-row:last-child{border-bottom:none;}
+  .gpx-icon{font-size:20px;}
+  .gpx-name{font-size:13px;font-weight:700;color:#2D2820;}
+  .gpx-hint{font-size:11px;color:#8C8480;}
+  .gpx-arrow{margin-left:auto;color:#C4A8D4;font-size:16px;}
+
+  /* Empty state */
+  .empty{padding:40px;text-align:center;color:#8C8480;font-size:13px;}
+
+  #import-overlay{display:none;position:fixed;inset:0;background:rgba(30,26,22,0.7);z-index:8000;align-items:center;justify-content:center;padding:20px;}
+  #import-overlay.open{display:flex;}
+  #import-box{background:#F7F4EF;border-radius:16px;padding:20px;width:100%;max-width:560px;box-shadow:0 8px 40px rgba(0,0,0,0.3);}
+  #import-box h3{font-family:'Libre Baskerville',Georgia,serif;color:#5C3D6E;font-size:17px;margin-bottom:8px;}
+  #import-box p{font-size:12px;color:#8C8480;margin-bottom:10px;line-height:1.5;}
+  #import-textarea{width:100%;height:160px;padding:10px;border:1px solid #D6CFBF;border-radius:8px;font-size:11px;font-family:'Courier New',monospace;resize:vertical;outline:none;background:#FAFAF8;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header id="header">
+    <div id="header-top">
+      <div id="logo-area" onclick="secretTap()" style="cursor:default;">
+        <svg width="46" height="46" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="38" fill="#5C3D6E"/>
+          <ellipse cx="40" cy="36" rx="16" ry="19" fill="#E8E0D8"/>
+          <path d="M25 28 Q20 35 22 45 Q24 50 23 58 Q22 63 24 67" stroke="#1A1A1A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M55 28 Q60 35 58 45 Q56 50 57 58 Q58 63 56 67" stroke="#1A1A1A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M24 28 Q28 14 40 13 Q52 14 56 28 Q52 20 40 19 Q28 20 24 28 Z" fill="#1A1A1A"/>
+          <line x1="40" y1="13" x2="40" y2="22" stroke="#E8E0D8" stroke-width="1.5"/>
+          <ellipse cx="34" cy="34" rx="3" ry="2.5" fill="#1A1A1A"/>
+          <ellipse cx="46" cy="34" rx="3" ry="2.5" fill="#1A1A1A"/>
+          <circle cx="35" cy="33" r="0.8" fill="white"/>
+          <circle cx="47" cy="33" r="0.8" fill="white"/>
+          <path d="M30 30 Q34 28.5 37 30" stroke="#1A1A1A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M43 30 Q46 28.5 50 30" stroke="#1A1A1A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M39 37 Q40 40 41 37" stroke="#B0A090" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <line x1="35" y1="43" x2="45" y2="43" stroke="#8A7060" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M28 54 Q32 50 40 52 Q48 50 52 54" stroke="#1A1A1A" stroke-width="2.5" fill="none"/>
+          <path d="M28 54 L26 60 L34 55" fill="#1A1A1A"/>
+          <path d="M52 54 L54 60 L46 55" fill="#1A1A1A"/>
+          <path d="M26 60 Q30 56 40 58 Q50 56 54 60 L56 75 L24 75 Z" fill="#1A1A1A"/>
+        </svg>
+        <div>
+          <div id="app-title">The Walking<br/><span>Wednesdays</span></div>
+          <div id="app-subtitle">N. Yorkshire &amp; S. Durham</div>
+        </div>
+      </div>
+      <button id="install-btn" onclick="doInstall()">Add to<br/>Home Screen</button>
+      <button id="paste-btn" onclick="openImport()"
+        style="display:none;background:#B8760A;color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;flex-shrink:0;">
+        📋 Paste<br/>routes
+      </button>
+    </div>
+    <div id="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('map')">🗺 Map</button>
+      <button class="tab-btn" onclick="switchTab('list')">☰ List</button>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div id="search-bar">
+    <div id="search-row">
+      <input id="search-input" type="search" placeholder="Search route no., name, area, start…" oninput="applyFilters()"/>
+      <button id="filter-btn" onclick="toggleFilters()">Filter ▼</button>
+    </div>
+    <div id="filter-row">
+      <select id="area-filter" onchange="applyFilters()"><option>All Areas</option></select>
+      <select id="diff-filter" onchange="applyFilters()">
+        <option>Difficulty</option><option>Easy</option><option>Moderate</option><option>Strenuous</option>
+      </select>
+      <select id="start-filter" onchange="applyFilters()"><option>All Starts</option></select>
+      <select id="dist-filter" onchange="applyFilters()">
+        <option>All Distances</option>
+        <option>&lt;5 miles</option>
+        <option>5–8 miles</option>
+        <option>8–9 miles</option>
+        <option>9–10 miles</option>
+        <option>10–12 miles</option>
+        <option>&gt;12 miles</option>
+      </select>
+    </div>
+    <div id="sort-row">
+      <span style="font-size:10px;font-weight:700;color:#8C8480;align-self:center;margin-right:2px;">SORT:</span>
+      <button class="sort-btn" onclick="setSort('dateWalked')">Date</button>
+      <button class="sort-btn" onclick="setSort('routeNo')">No.</button>
+      <button class="sort-btn" onclick="setSort('area')">Area</button>
+      <button class="sort-btn" onclick="setSort('distance')">Distance</button>
+      <button class="sort-btn" onclick="setSort('difficulty')">Difficulty</button>
+      <button class="sort-btn" onclick="setSort('start')">Start</button>
+      <button class="sort-btn" id="clear-sort-btn" onclick="clearSort()" style="display:none;background:#EDE8DF;color:#8C8480;border-color:#D6CFBF;">✕ Clear</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+      <div style="display:flex;gap:6px;">
+        <button id="reset-btn" onclick="resetFilters()" style="display:none;">↺ Reset filters</button>
+        <button id="clear-all-btn" onclick="clearAll()" style="display:none;padding:5px 10px;border-radius:6px;border:1px solid #5C3D6E;background:#fff;color:#5C3D6E;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✕ Clear all</button>
+      </div>
+      <div id="result-count"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- MAP VIEW -->
+    <div id="map-view" class="active">
+      <!-- Weather summary -->
+      <div id="weather-bar">
+        <div id="weather-loading">⏳ Loading area weather…</div>
+        <div id="weather-now" style="display:none">
+          <div id="weather-now-left">
+            <div id="weather-emoji"></div>
+            <div><div id="weather-desc"></div><div id="weather-sub"></div></div>
+          </div>
+          <div id="weather-temp"></div>
+        </div>
+        <div id="weather-days" style="display:none"></div>
+      </div>
+
+      <!-- Map container -->
+      <div id="map-container">
+        <div id="leaflet-map"></div>
+        <div id="map-tooltip">
+          <div id="tooltip-name" style="font-size:13px;font-weight:700;color:#2D2820;font-family:'Libre Baskerville',Georgia,serif;margin-bottom:3px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div id="tooltip-meta" style="font-size:11px;color:#8C8480;"></div>
+            <div id="tooltip-badge"></div>
+          </div>
+          <div style="font-size:10px;color:#5C3D6E;font-weight:600;margin-top:4px;">Tap to open route →</div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- LIST VIEW -->
+    <div id="list-view">
+      <div id="cards-grid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- IMPORT OVERLAY -->
+<div id="import-overlay">
+  <div id="import-box">
+    <h3>📋 Paste your routes</h3>
+    <p>Copy the output from <b>GPXExtractor.html</b> (the <code>let ROUTES = [...]</code> block) and paste it below. Your routes will load immediately — no file editing needed.</p>
+    <textarea id="import-textarea" placeholder="Paste const ROUTES = [ ... ]; here"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="importRoutes()" style="flex:1;padding:11px;background:#5C3D6E;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">Load routes</button>
+      <button onclick="closeImport()" style="padding:11px 16px;background:#EDE8DF;color:#8C8480;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>
+    </div>
+    <div id="import-error" style="font-size:12px;color:#C0392B;margin-top:8px;display:none;"></div>
+  </div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay">
+  <div id="detail-backdrop" onclick="closeDetail()"></div>
+  <div id="detail-sheet">
+    <div id="detail-handle-row"><div id="detail-handle"></div></div>
+
+    <!-- TOP CLOSE BUTTON -->
+    <div id="detail-top-close">
+      <button id="top-close-btn" onclick="closeDetail()">
+        🏠 Home
+      </button>
+    </div>
+
+    <div id="detail-header">
+      <div id="detail-eyebrow"></div>
+      <div id="detail-name"></div>
+      <div id="detail-stats-grid"></div>
+    </div>
+    <div id="detail-body">
+      <div id="detail-date-row" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="detail-desc" class="detail-desc"></div>
+      <div id="detail-start-finish" class="two-col"></div>
+      <a id="detail-directions" class="action-link" target="_blank" rel="noreferrer">
+        <span class="action-link-icon">🚗</span>
+        <div class="action-link-info">
+          <div class="action-link-title">Drive to start</div>
+          <div class="action-link-sub">Open in Google Maps</div>
+        </div>
+        <span class="action-link-cta">Directions →</span>
+      </a>
+      <div id="detail-carpark"></div>
+      <div id="detail-benches" style="margin-top:0;"></div>
+      <div id="detail-notes"></div>
+      <div id="detail-pub"></div>
+      <div id="detail-weather">
+        <div class="section-label"><span>⛅</span><span>3-Day Forecast · Walk Start Point</span></div>
+        <div id="detail-weather-loading">⏳ Loading forecast…</div>
+        <div id="detail-forecast"></div>
+        <div id="detail-metoffice"></div>
+      </div>
+      <button class="primary-btn" onclick="openRoutePreview()" style="background:#3A6B47;color:#fff;border:none;">🗺️ Preview route map</button>
+      <button class="primary-btn btn-open" onclick="toggleGpxApps()">🥾 Open route in…</button>
+      <div id="gpx-apps"></div>
+      <button class="primary-btn btn-share" onclick="shareRoute()" style="background:#5C3D6E;color:#fff;border:none;">📤 Share this walk</button>
+      <button class="primary-btn btn-close" onclick="closeDetail()" style="margin-top:0;background:#5C3D6E;color:#fff;font-weight:700;">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUTE PREVIEW MODAL -->
+<div id="route-preview-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;">
+      <div id="preview-title" style="font-size:14px;font-weight:700;color:#2D2820;font-family:'Libre Baskerville',Georgia,serif;"></div>
+      <button onclick="closeRoutePreview()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#8C8480;line-height:1;">×</button>
+    </div>
+    <div id="preview-map" style="height:300px;width:100%;"></div>
+    <div id="preview-status" style="padding:8px 16px 12px;font-size:11px;color:#8C8480;font-family:Inter,sans-serif;"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onload="if(window.initMap&&!window.leafletMap)window.initMap()"></script>
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// ROUTE DATA — replace with GPX Extractor output
+// ─────────────────────────────────────────────────────────────────────────────
+const ROUTES = [
+  {
+    routeNo: "172",
+    dateWalked: "10 Dec 2026",
+    area: "North York Moors",
+    name: "Hutton-Le-Hole-Gillamoor-Kirkbymoorside",
+    type: "Circular",
+    start: "Hutton-Le-Hole",
+    finish: "Hutton-Le-Hole",
+    distance: "8.4",
+    ascent: "870",
+    difficulty: "Easy",
+    duration: "3h 14min",
+    lat: 54.302637,
+    lng: -0.917587,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/172-Hutton Le Hole-Gillamoor-Kirkbymoorside.gpx",
+    description: "",
+    carParking: "NY Moors car park.  Charges apply.",
+    restPoints: "Can't remember",
+    notes: "",
+    metOfficeCode: "gcxkgj5wc", // Hutton-le-Hole
+  },
+
+  {
+    routeNo: "173",
+    dateWalked: "7 Jan 2026",
+    area: "Teesside",
+    name: "Nunthorpe-RoseberryTopping",
+    type: "Circular",
+    start: "Nunthorpe",
+    finish: "Nunthorpe",
+    distance: "8.1",
+    ascent: "1080",
+    difficulty: "Moderate",
+    duration: "3h 14min",
+    lat: 54.51173,
+    lng: -1.16669,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/173-Nunthorpe-RoseberryTopping.gpx",
+    description: "",
+    carParking: "Roadside parking",
+    restPoints: "Can't remember",
+    notes: "Very icy on the day we walked the route.",
+    metOfficeCode: "gcxn7yvv5", // Middlesbrough (nearest to Nunthorpe)
+  },
+
+  {
+    routeNo: "174",
+    dateWalked: "18 Jan 2026",
+    area: "Teesside",
+    name: "Crathorne-Kirklevington-Picton",
+    type: "Circular",
+    start: "Crathorne",
+    finish: "Crathorne",
+    distance: "8.4",
+    ascent: "160",
+    difficulty: "Easy",
+    duration: "2h 53min",
+    lat: 54.461088,
+    lng: -1.321281,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/174-Crathorne-Kirklevington-Picton.gpx",
+    description: "",
+    carParking: "Roadside parking",
+    restPoints: "Can't remember",
+    notes: "",
+    metOfficeCode: "gcxn14nxh", // Yarm (nearest to Crathorne)
+  },
+
+  {
+    routeNo: "176",
+    dateWalked: "18 Feb 2026",
+    area: "Cleveland Hills",
+    name: "Cod Beck-Chequers-Osmotherley",
+    type: "Circular",
+    start: "Cod Beck",
+    finish: "Cod Beck",
+    distance: "7.1",
+    ascent: "1050",
+    difficulty: "Easy",
+    duration: "2h 54min",
+    lat: 54.38741,
+    lng: -1.27891,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/176-Cod Beck-Chequers-Osmotherley.gpx",
+    description: "",
+    carParking: "Cod Beck Car Park.  Free.",
+    restPoints: "Seats in Osmotherley only.",
+    notes: "",
+    metOfficeCode: "gcxj6f80h", // Osmotherley (nearest to Cod Beck)
+  },
+
+  {
+    routeNo: "177",
+    dateWalked: "4 Mar 2026",
+    area: "North York Moors",
+    name: "May Becks-York Cross-Lilla Cross",
+    type: "Circular",
+    start: "May Becks",
+    finish: "May Becks",
+    distance: "8.1",
+    ascent: "800",
+    difficulty: "Difficult",
+    duration: "3h 6min",
+    lat: 54.40974,
+    lng: -0.62641,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/177-May Becks-York Cross-Lilla Cross.gpx",
+    description: "",
+    carParking: "Forestry Car Park.  Charges apply",
+    restPoints: "No seats.",
+    notes: "Rough going where the fire had damaged the paths, hence classed as a Difficulty walk.",
+    metOfficeCode: "gcxkgj5wc", // Hutton-le-Hole (North York Moors)
+  },
+
+  {
+    routeNo: "178",
+    dateWalked: "18 Mar 2026",
+    area: "North York Moors",
+    name: "Blakey Circular",
+    type: "Circular",
+    start: "Blakey",
+    finish: "Blakey",
+    distance: "8.5",
+    ascent: "900",
+    difficulty: "Moderate",
+    duration: "3h 17min",
+    lat: 54.38056,
+    lng: -0.915835,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/178-Blakey Circular.gpx",
+    description: "",
+    carParking: "Roadside car park.  Free.",
+    restPoints: "Seats and tables along the old railway line.",
+    notes: "Modification to Trev's original route.",
+    metOfficeCode: "gcxkw6g02", // Pickering (nearest to Blakey)
+  },
+
+  {
+    routeNo: "179",
+    dateWalked: "1 Apr 2026",
+    area: "Cleveland Hills",
+    name: "Chop Gate-Cold Moor-Lord Stones-ThwaitesHouse",
+    type: "Circular",
+    start: "Chop Gate",
+    finish: "Chop Gate",
+    distance: "8.4",
+    ascent: "1025",
+    difficulty: "Moderate",
+    duration: "3h 19min",
+    lat: 54.386553,
+    lng: -1.141145,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/179-Chop Gate-Cold Moor-Lord Stones-ThwaitesHouse..gpx",
+    description: "",
+    carParking: "Village Hall car park.  Charges apply.",
+    restPoints: "Seats at Lordstones, otherwise sit on the grass or heather.",
+    notes: "",
+    metOfficeCode: "gcxjvh611", // Stokesley (nearest to Chop Gate)
+  },
+
+  {
+    routeNo: "181",
+    dateWalked: "29 Apr 2026",
+    area: "East Cleveland",
+    name: "Guisborough-Upleatham-Skelton-Guisborough",
+    type: "Circular",
+    start: "Guisborough",
+    finish: "Guisborough",
+    distance: "8.8",
+    ascent: "800",
+    difficulty: "Easy",
+    duration: "3h 20min",
+    lat: 54.52987,
+    lng: -1.04731,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/181-Guisborough-Upleatham-Skelton-Guisborough.gpx",
+    description: "",
+    carParking: "Rugby Clup.  Private car parking but commonly used.  Free.",
+    restPoints: "Some seating.  Large tomb in Upleatham church grave yard is recommended.",
+    notes: "",
+    metOfficeCode: "gcxq0puzy", // Guisborough
+  },
+
+  {
+    routeNo: "184",
+    dateWalked: "10 Jun 2026",
+    area: "Whitby",
+    name: "Aislaby-Sleights-Ruswarp-Whitby",
+    type: "Circular",
+    start: "Aislaby",
+    finish: "Aislaby",
+    distance: "8",
+    ascent: "840",
+    difficulty: "Easy",
+    duration: "3h 5min",
+    lat: 54.46673,
+    lng: -0.67301,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/184-Aislaby-Sleights-Ruswarp-Whitby.gpx",
+    description: "",
+    carParking: "Roadside parking.",
+    restPoints: "Pleanty of seats in villages and between Ruswarp and Whitby.",
+    notes: "",
+    metOfficeCode: "gcxtfnft4", // Whitby (nearest to Aislaby)
+  },
+
+  {
+    routeNo: "185",
+    dateWalked: "24 Jun 2026",
+    area: "North York Moors",
+    name: "Danby Beacon-Lealholm-Houlsyke",
+    type: "Circular",
+    start: "Danby Beacon",
+    finish: "Danby Beacon",
+    distance: "8.8",
+    ascent: "840",
+    difficulty: "Easy",
+    duration: "3h 21min",
+    lat: 54.47345,
+    lng: -0.86497,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/185-DanbyBeacon-Lealholm-Houlsyke.gpx",
+    description: "",
+    carParking: "Offroad parking at Danby Beacon.  Free.",
+    restPoints: "Seat on Houlsyke to Lealholm road. No other seats so sit on the grass or heather and admire the magnificent views.",
+    notes: "The consensus of the group is that this is a walk that can't be repeated often enough.",
+    metOfficeCode: "gcxkgj5wc", // Hutton-le-Hole (North York Moors)
+  },
+
+  {
+    routeNo: "186",
+    dateWalked: "8 Jul 2026",
+    area: "Teesside",
+    name: "Flatts Lane - Eston Hills",
+    type: "Circular",
+    start: "Flatts Lane",
+    finish: "Flatts Lane",
+    distance: "7.9",
+    ascent: "980",
+    difficulty: "Easy",
+    duration: "3h 6min",
+    lat: 54.54386,
+    lng: -1.14884,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/186-FlattsLane-EstonHills.gpx",
+    description: "",
+    carParking: "Free car parking at Flatts Lane Woodland Country Park",
+    restPoints: "Not known yet - probably all destroyed!",
+    notes: "John's walk so definitely free car parking",
+    metOfficeCode: "gcxn7yvv5", // Middlesbrough (nearest to Flatts Lane)
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let currentRoute = null;
+let filteredRoutes = [...ROUTES];
+let leafletMap = null; window.leafletMap = null;
+let markers = {};
+let filtersOpen = false;
+let gpxAppsOpen = false;
+let installPromptEvent = null;
+let currentSort = null;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GEOHASH ENCODER — used to build direct Met Office forecast URLs
+// ─────────────────────────────────────────────────────────────────────────────
+function encodeGeohash(lat, lng, precision=9){
+  const BASE32="0123456789bcdefghjkmnpqrstuvwxyz";
+  let idx=0,bit=0,evenBit=true,geohash="";
+  let minLat=-90,maxLat=90,minLng=-180,maxLng=180;
+  while(geohash.length<precision){
+    if(evenBit){
+      const midLng=(minLng+maxLng)/2;
+      if(lng>=midLng){idx=idx*2+1;minLng=midLng;}else{idx=idx*2;maxLng=midLng;}
+    } else {
+      const midLat=(minLat+maxLat)/2;
+      if(lat>=midLat){idx=idx*2+1;minLat=midLat;}else{idx=idx*2;maxLat=midLat;}
+    }
+    evenBit=!evenBit;
+    if(++bit===5){geohash+=BASE32[idx];bit=0;idx=0;}
+  }
+  return geohash;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COLOUR / BADGE HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+const DIFF = {
+  easy:      {color:"#3A6B47",label:"Easy"},
+  gentle:    {color:"#3A6B47",label:"Easy"},
+  moderate:  {color:"#B8760A",label:"Moderate"},
+  strenuous: {color:"#C0392B",label:"Strenuous"},
+  difficult: {color:"#C0392B",label:"Strenuous"},
+  hard:      {color:"#C0392B",label:"Hard"},
+};
+function dm(d){ return DIFF[(d||"").toLowerCase()]||{color:"#8C8480",label:d||""}; }
+
+// Format distance: handles numeric (4.0) → "4.0 mi"
+// and strings ("4.0 mi", "4.0", "6.4 km") — always shows with unit
+function fmtDist(v){
+  if(v===null||v===undefined||v==="") return "—";
+  const s = String(v).trim();
+  if(s.toLowerCase().includes("mi") || s.toLowerCase().includes("km")) return s;
+  const n = parseFloat(s);
+  return isNaN(n) ? s : `${n} mi`;
+}
+
+// Format ascent: handles numeric (820) → "820 ft"
+// and strings ("820 ft", "820", "250 m")
+function fmtAscent(v){
+  if(v===null||v===undefined||v==="") return "—";
+  const s = String(v).trim();
+  if(s.toLowerCase().includes("ft") || s.toLowerCase().includes("m")) return s;
+  const n = parseFloat(s);
+  if(isNaN(n)) return s;
+  return `${Math.round(n).toLocaleString()} ft`;
+}
+
+// Format duration — handles:
+//   raw decimal hours from GPX Extractor: 3.2567 → "3h 15min"
+//   already formatted strings: "2h 30min" → "2h 30min"
+//   whole hours: 3.0 → "3h"
+//   under an hour: 0.75 → "45min"
+//   Minutes rounded to nearest 5
+function fmtDuration(v){
+  if(v===null||v===undefined||v==="") return "—";
+  const s = String(v).trim();
+  if(!s) return "—";
+
+  let totalMins = null;
+
+  if(/[a-zA-Z]/.test(s)){
+    // Parse formatted strings: "2h 30min", "2h30m", "2:30", "150min", "90m" etc.
+    let h = 0, m = 0;
+    const hMatch = s.match(/(\d+)\s*h/i);
+    const mMatch = s.match(/(\d+)\s*m(?:in)?/i);
+    const colonMatch = s.match(/^(\d+):(\d+)$/);
+    if(colonMatch){
+      h = parseInt(colonMatch[1]);
+      m = parseInt(colonMatch[2]);
+    } else {
+      if(hMatch) h = parseInt(hMatch[1]);
+      if(mMatch) m = parseInt(mMatch[1]);
+      // Handle "150min" style (only minutes, no hours)
+      if(!hMatch && !mMatch){
+        const numOnly = s.match(/(\d+)/);
+        if(numOnly) m = parseInt(numOnly[1]);
+      }
+    }
+    totalMins = h * 60 + m;
+  } else {
+    // Decimal hours: 2.5 = 2h 30m
+    const h = parseFloat(s);
+    if(isNaN(h)) return s;
+    totalMins = h * 60;
+  }
+
+  if(totalMins === null || isNaN(totalMins)) return s;
+
+  // Round total minutes to nearest 5
+  const rounded = Math.round(totalMins / 5) * 5;
+  const wholeH = Math.floor(rounded / 60);
+  const mins = rounded % 60;
+
+  if(wholeH === 0 && mins === 0) return "—";
+  if(wholeH === 0) return `${mins}m`;
+  if(mins === 0) return `${wholeH}h`;
+  return `${wholeH}h ${mins}m`;
+}
+
+// Format walk type — capitalise first letter
+function fmtType(v){
+  if(v===null||v===undefined||v==="") return "—";
+  const s = String(v).trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function badge(text,color,small){
+  return `<span class="badge${small?" badge-sm":""}" style="background:${color}22;color:${color};border:1px solid ${color}55">${text}</span>`;
+}
+function fmtDate(d){
+  if(!d) return "";
+  try{
+    const s = String(d).trim();
+    // Excel serial date number (e.g. 46197 = 24 Jun 2026)
+    const n = Number(s);
+    if(!isNaN(n) && Number.isInteger(n) && n > 40000 && n < 60000){
+      return new Date((n - 25569) * 86400000)
+        .toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+    }
+    // UK date string DD/MM/YYYY
+    const ukMatch = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(ukMatch){
+      const [,day,month,year] = ukMatch;
+      return new Date(year, month-1, day)
+        .toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+    }
+    // ISO or other formats
+    const parsed = new Date(s);
+    if(!isNaN(parsed)) return parsed.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+    return s;
+  }
+  catch{ return String(d); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILTER & RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function applyFilters(){
+  const q=(document.getElementById("search-input").value||"").toLowerCase();
+  const area=document.getElementById("area-filter").value;
+  const diff=document.getElementById("diff-filter").value;
+  const start=document.getElementById("start-filter").value;
+  const dist=document.getElementById("dist-filter").value;
+  filteredRoutes=ROUTES.filter(r=>{
+    const mq=!q||(r.routeNo||"").toLowerCase().includes(q)||
+      (r.name||"").toLowerCase().includes(q)||
+      (r.area||"").toLowerCase().includes(q)||
+      (r.start||"").toLowerCase().includes(q)||
+      fmtDist(r.distance).toLowerCase().includes(q)||
+      fmtAscent(r.ascent).toLowerCase().includes(q)||
+      (r.difficulty||"").toLowerCase().includes(q)||
+      fmtDate(r.dateWalked).toLowerCase().includes(q);
+    const ma=area==="All Areas"||r.area===area;
+    const md=diff==="Difficulty"||(r.difficulty||"").toLowerCase()===diff.toLowerCase();
+    const ms=start==="All Starts"||r.start===start;
+    const d=parseFloat(r.distance)||0;
+    let mdist=true;
+    if(dist==="<5 miles") mdist=d<5;
+    else if(dist==="5–8 miles") mdist=d>=5&&d<8;
+    else if(dist==="8–9 miles") mdist=d>=8&&d<9;
+    else if(dist==="9–10 miles") mdist=d>=9&&d<10;
+    else if(dist==="10–12 miles") mdist=d>=10&&d<=12;
+    else if(dist===">12 miles") mdist=d>12;
+    return mq&&ma&&md&&ms&&mdist;
+  });
+  // Apply sort
+  if(currentSort){
+    const {field,dir}=currentSort;
+    filteredRoutes.sort((a,b)=>{
+      let av=a[field]||"", bv=b[field]||"";
+      if(field==="distance"||field==="ascent"){av=parseFloat(av)||0;bv=parseFloat(bv)||0;}
+      else if(field==="dateWalked"){av=fmtDate(av)||"";bv=fmtDate(bv)||"";}
+      else if(field==="difficulty"){const order={easy:0,gentle:0,moderate:1,strenuous:2,hard:2};av=order[(av+"").toLowerCase()]??99;bv=order[(bv+"").toLowerCase()]??99;}
+      else {av=String(av).toLowerCase();bv=String(bv).toLowerCase();}
+      if(av<bv) return dir==="asc"?-1:1;
+      if(av>bv) return dir==="asc"?1:-1;
+      return 0;
+    });
+  }
+  // Show/hide reset button
+  const hasFilter=area!=="All Areas"||diff!=="Difficulty"||start!=="All Starts"||dist!=="All Distances"||q;
+  const rb=document.getElementById("reset-btn");
+  if(rb) rb.style.display=hasFilter?"block":"none";
+  const cab=document.getElementById("clear-all-btn");
+  if(cab) cab.style.display=(hasFilter||currentSort)?"block":"none";
+  document.getElementById("result-count").textContent=`${filteredRoutes.length} walk${filteredRoutes.length!==1?"s":""}`;
+  renderCards();
+  updateMapMarkers();
+}
+
+function renderCards(){
+  const el=document.getElementById("cards-grid");
+  if(!filteredRoutes.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">No walks match your search</div>'; return; }
+  el.innerHTML=filteredRoutes.map(r=>{
+    const d=dm(r.difficulty);
+    return `<div class="route-card" onclick="openDetail('${r.routeNo||ROUTES.indexOf(r)}')">
+      <div class="card-stripe" style="background:${d.color}"></div>
+      <div class="card-body">
+        <div class="card-eyebrow">${r.routeNo} · ${r.area}</div>
+        <div class="card-name">${r.name}</div>
+        <div class="card-stats">
+          <span>◈ ${fmtDist(r.distance)}</span>
+          ${r.ascent||r.ascent===0?`<span>▲ ${fmtAscent(r.ascent)}</span>`:""}
+          <span>${fmtType(r.type)}</span>
+          ${badge(d.label,d.color)}
+          ${r.dateWalked?`<span>📅 ${fmtDate(r.dateWalked)}</span>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEAFLET MAP
+// ─────────────────────────────────────────────────────────────────────────────
+window.initMap = function initMap(){
+  if(leafletMap||!window.L) return;
+  leafletMap=L.map("leaflet-map",{center:[54.35,-1.30],zoom:9}); window.leafletMap=leafletMap;
+  // CartoDB Voyager tiles — free, no API key, no referer restriction.
+  // Works in StackBlitz, Vercel, and when opened directly from a file.
+  // For OS-style tiles (contours, footpaths): sign up free at thunderforest.com,
+  // get a free API key and replace the URL below with:
+  // https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=YOUR_KEY
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd',
+    maxZoom:19
+  }).addTo(leafletMap);
+  addAllMarkers();
+}
+
+function addAllMarkers(){
+  // Group routes by location — routes within ~50m of each other are considered co-located
+  // Co-located routes are spread into a small cluster so all pins are visible
+  const CLUSTER_RADIUS = 0.0005; // ~50 metres in degrees
+
+  function isSameLocation(a, b){
+    return Math.abs(a.lat - b.lat) < CLUSTER_RADIUS &&
+           Math.abs(a.lng - b.lng) < CLUSTER_RADIUS;
+  }
+
+  // Build clusters
+  const clusters = [];
+  const assigned = new Set();
+  ROUTES.forEach((r, i)=>{
+    if(assigned.has(i)) return;
+    const cluster = [i];
+    assigned.add(i);
+    ROUTES.forEach((r2, j)=>{
+      if(i !== j && !assigned.has(j) && isSameLocation(r, r2)){
+        cluster.push(j);
+        assigned.add(j);
+      }
+    });
+    clusters.push(cluster);
+  });
+
+  // Spread offsets for clusters — arrange in a small circle around the centre point
+  // Offset in degrees (~15-20 metres per step)
+  const OFFSET = 0.00018;
+  const spreadOffsets = [
+    [0, 0],
+    [-OFFSET, 0],       [OFFSET, 0],
+    [0, -OFFSET],       [0, OFFSET],
+    [-OFFSET, -OFFSET], [OFFSET, -OFFSET],
+    [-OFFSET, OFFSET],  [OFFSET, OFFSET],
+    [-OFFSET*2, 0],     [OFFSET*2, 0],
+    [0, -OFFSET*2],     [0, OFFSET*2],
+  ];
+
+  clusters.forEach(cluster=>{
+    cluster.forEach((routeIdx, posIdx)=>{
+      const r = ROUTES[routeIdx];
+      const d = dm(r.difficulty);
+      const num = (r.routeNo||"").replace("W","");
+
+      // Apply spread offset if more than one route at this location
+      const offset = cluster.length > 1 ? (spreadOffsets[posIdx] || [0,0]) : [0,0];
+      const lat = r.lat + offset[0];
+      const lng = r.lng + offset[1];
+
+      // Make clustered pins slightly smaller so the cluster fits neatly
+      const size = cluster.length > 1 ? 24 : 28;
+      const fontSize = cluster.length > 1 ? 9 : 10;
+
+      const icon = L.divIcon({
+        className:"",
+        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:#fff;border:3px solid ${d.color};display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:800;color:${d.color};box-shadow:0 2px 6px rgba(0,0,0,0.25);font-family:Inter,sans-serif;cursor:pointer;">${num}</div>`,
+        iconSize:[size,size],iconAnchor:[size/2,size/2]
+      });
+
+      const marker = L.marker([lat,lng],{icon}).addTo(leafletMap);
+      marker.on("click",()=>{
+        showTooltip(r);
+        leafletMap.flyTo([r.lat,r.lng],Math.max(leafletMap.getZoom(),12),{duration:0.7});
+      });
+      markers[r.routeNo] = marker;
+    });
+  });
+}
+
+function updateMapMarkers(){
+  // Dim non-matching markers
+  Object.entries(markers).forEach(([rno,marker])=>{
+    const inFilter=filteredRoutes.some(r=>r.routeNo===rno);
+    const el=marker.getElement();
+    if(el) el.style.opacity=inFilter?"1":"0.3";
+  });
+}
+
+function showTooltip(r){
+  const d=dm(r.difficulty);
+  document.getElementById("tooltip-name").textContent=r.name;
+  document.getElementById("tooltip-meta").textContent=`${r.routeNo} · ${fmtDist(r.distance)} · ${fmtAscent(r.ascent)}`;
+  document.getElementById("tooltip-badge").innerHTML=badge(d.label,d.color);
+  const tt=document.getElementById("map-tooltip");
+  tt.style.display="block";
+  tt.onclick=()=>openDetail(r.routeNo);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WEATHER
+// ─────────────────────────────────────────────────────────────────────────────
+function wmoInfo(code){
+  if(code===0)  return{d:"Clear sky",e:"☀️"};
+  if(code<=2)   return{d:"Partly cloudy",e:"⛅"};
+  if(code===3)  return{d:"Overcast",e:"☁️"};
+  if(code<=49)  return{d:"Foggy",e:"🌫️"};
+  if(code<=57)  return{d:"Drizzle",e:"🌦️"};
+  if(code<=67)  return{d:"Rain",e:"🌧️"};
+  if(code<=77)  return{d:"Snow",e:"❄️"};
+  if(code<=82)  return{d:"Showers",e:"🌦️"};
+  if(code<=99)  return{d:"Thunderstorm",e:"⛈️"};
+  return{d:"Unknown",e:"🌡️"};
+}
+function uvInfo(uv){
+  if(uv<=2) return{l:"Low",c:"#3A6B47"};
+  if(uv<=5) return{l:"Moderate",c:"#B8760A"};
+  if(uv<=7) return{l:"High",c:"#C0392B"};
+  return{l:"Very High",c:"#8B1A1A"};
+}
+function beaufort(kmh){
+  if(kmh<2)return"Calm";if(kmh<12)return"Light";
+  if(kmh<29)return"Moderate";if(kmh<50)return"Fresh";
+  if(kmh<75)return"Strong";return"Storm";
+}
+function fmtTime(iso){
+  if(!iso)return"--";
+  return new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+}
+function fmtDay(iso){
+  const d=new Date(iso),t=new Date();
+  if(d.toDateString()===t.toDateString())return"Today";
+  const tom=new Date(t);tom.setDate(tom.getDate()+1);
+  if(d.toDateString()===tom.toDateString())return"Tomorrow";
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+}
+
+async function loadAreaWeather(){
+  try{
+    const res=await fetch("https://api.open-meteo.com/v1/forecast?latitude=54.35&longitude=-1.30&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&current_weather=true&timezone=Europe%2FLondon&forecast_days=3");
+    const data=await res.json();
+    const cur=data.current_weather;
+    const d=data.daily;
+    const wmo=wmoInfo(cur.weathercode);
+    document.getElementById("weather-loading").style.display="none";
+    document.getElementById("weather-emoji").textContent=wmo.e;
+    document.getElementById("weather-desc").textContent=wmo.d;
+    document.getElementById("weather-sub").textContent=`North Yorkshire · Now · ${Math.round(cur.windspeed)} km/h wind`;
+    document.getElementById("weather-temp").textContent=`${Math.round(cur.temperature)}°C`;
+    document.getElementById("weather-now").style.display="flex";
+    document.getElementById("weather-days").style.display="grid";
+    document.getElementById("weather-days").innerHTML=[0,1,2].map(i=>{
+      const w=wmoInfo(d.weathercode[i]);
+      const rain=d.precipitation_probability_max[i];
+      const rc=rain>60?"#C0392B":rain>30?"#B8760A":"#3A6B47";
+      return `<div class="weather-day">
+        <div class="wd-label">${fmtDay(d.time[i])}</div>
+        <div class="wd-emoji">${w.e}</div>
+        <div class="wd-temp">${Math.round(d.temperature_2m_max[i])}° <span style="color:#8C8480;font-weight:400">${Math.round(d.temperature_2m_min[i])}°</span></div>
+        <div class="wd-rain" style="color:${rc}">💧${rain}%</div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    document.getElementById("weather-loading").style.display="block";
+    document.getElementById("weather-loading").textContent="⚠ Weather unavailable — requires an internet connection";
+    document.getElementById("weather-now").style.display="none";
+    document.getElementById("weather-days").style.display="none";
+  }
+}
+
+async function loadRouteWeather(lat,lng){
+  document.getElementById("detail-weather-loading").style.display="block";
+  document.getElementById("detail-forecast").innerHTML="";
+  try{
+    const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max,uv_index_max,sunrise,sunset&current_weather=true&timezone=Europe%2FLondon&forecast_days=3`);
+    const data=await res.json();
+    const d=data.daily;
+    document.getElementById("detail-weather-loading").style.display="none";
+    document.getElementById("detail-forecast").innerHTML=[0,1,2].map(i=>{
+      const w=wmoInfo(d.weathercode[i]);
+      const rain=d.precipitation_probability_max[i];
+      const wind=Math.round(d.windspeed_10m_max[i]);
+      const uv=Math.round(d.uv_index_max[i]);
+      const uvi=uvInfo(uv);
+      const rc=rain>60?"#C0392B":rain>30?"#B8760A":"#3A6B47";
+      const wc=wind>40?"#C0392B":"#2D2820";
+      return `<div class="forecast-day${i===0?" today":""}">
+        <div class="forecast-header">
+          <div class="forecast-left">
+            <div class="forecast-emoji">${w.e}</div>
+            <div><div class="forecast-day-name">${fmtDay(d.time[i])}</div><div class="forecast-desc">${w.d}</div></div>
+          </div>
+          <div class="forecast-temp">${Math.round(d.temperature_2m_max[i])}°<span> / ${Math.round(d.temperature_2m_min[i])}°C</span></div>
+        </div>
+        <div class="forecast-stats">
+          <div class="fstat"><div class="fstat-icon">💧</div><div class="fstat-label">Rain</div><div class="fstat-value" style="color:${rc}">${rain}%</div></div>
+          <div class="fstat"><div class="fstat-icon">💨</div><div class="fstat-label">Wind</div><div class="fstat-value" style="color:${wc}">${wind}km/h</div><div class="fstat-sub">${beaufort(wind)}</div></div>
+          <div class="fstat"><div class="fstat-icon">🔆</div><div class="fstat-label">UV</div><div class="fstat-value" style="color:${uvi.c}">${uv}</div><div class="fstat-sub">${uvi.l}</div></div>
+          <div class="fstat"><div class="fstat-icon">🌅</div><div class="fstat-label">Light</div><div class="fstat-value" style="color:#B8760A">${fmtTime(d.sunrise[i])}</div><div class="fstat-sub">↓${fmtTime(d.sunset[i])}</div></div>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    document.getElementById("detail-weather-loading").textContent="⚠ Weather unavailable — check internet connection and try again";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DETAIL SHEET
+// ─────────────────────────────────────────────────────────────────────────────
+function openDetail(routeNo){
+  let r=ROUTES.find(x=>x.routeNo===routeNo||x.routeNo===String(routeNo));
+  if(!r&&!isNaN(routeNo)) r=ROUTES[parseInt(routeNo)];
+  if(!r)return;
+  currentRoute=r;
+  const d=dm(r.difficulty);
+  try{
+
+  // Header
+  document.getElementById("detail-eyebrow").textContent=`${r.routeNo} · ${r.area}`;
+  document.getElementById("detail-name").textContent=r.name;
+  document.getElementById("detail-stats-grid").innerHTML=[
+    {label:"Distance", value:fmtDist(r.distance)},
+    {label:"Ascent",   value:fmtAscent(r.ascent)},
+    {label:"Duration", value:fmtDuration(r.duration)},
+    {label:"Type",     value:fmtType(r.type)},
+  ].map(s=>`<div class="dstat"><div class="dstat-label">${s.label}</div><div class="dstat-value">${s.value}</div></div>`).join("");
+
+  // Date + difficulty
+  document.getElementById("detail-date-row").innerHTML=
+    (r.dateWalked?`<span style="font-size:12px;color:#8C8480">📅 Walked ${fmtDate(r.dateWalked)}</span>`:"") +
+    badge(d.label,d.color);
+
+  // Description
+  document.getElementById("detail-desc").textContent=r.description||"";
+  document.getElementById("detail-desc").style.display=r.description?"block":"none";
+
+  // Start / Finish
+  document.getElementById("detail-start-finish").innerHTML=
+    (r.start?`<div class="info-box" style="border-left:3px solid #3A6B47"><div class="info-box-label" style="color:#3A6B47">▲ Start</div><div class="info-box-value">${r.start}</div></div>`:"") +
+    (r.finish?`<div class="info-box" style="border-left:3px solid #B8760A"><div class="info-box-label" style="color:#B8760A">■ Finish</div><div class="info-box-value">${r.finish}</div></div>`:"");
+
+  // Driving directions
+  document.getElementById("detail-directions").href=
+    `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}&travelmode=driving`;
+
+  // Car park
+  // Car parking — supports both free-text (r.carParking) and legacy object (r.carPark)
+  const cpText = r.carParking || "";
+  const cp = r.carPark;
+  const cpObjData = cp && (cp.name||cp.charges||cp.postcode||cp.notes);
+  const cpHasData = cpText.trim() || cpObjData;
+
+  let cpHtml = "";
+  if(cpText.trim()){
+    // Free-text format from spreadsheet column "Car Parking"
+    cpHtml = `<div class="park-panel">
+      <div class="section-label"><span>🅿</span><span>Car Parking</span></div>
+      <div class="bench-text">${cpText}</div>
+    </div>`;
+  } else if(cpObjData){
+    // Legacy object format (manually entered route data)
+    cpHtml = `<div class="park-panel">
+      <div class="section-label"><span>🅿</span><span>Car Parking</span></div>
+      ${cp.name?`<div class="park-name">${cp.name}</div>`:""}
+      ${(cp.postcode||cp.operator)?`<div class="park-sub">${[cp.postcode,cp.operator].filter(Boolean).join(" · ")}</div>`:""}
+      ${cp.charges?`<div class="park-row"><b>Charges:</b> ${cp.charges}</div>`:""}
+      ${cp.payment?`<div class="park-row"><b>Payment:</b> ${cp.payment}</div>`:""}
+      ${cp.notes?`<div class="park-notes">${cp.notes}</div>`:""}
+      ${cp.url?`<a class="park-link" href="${cp.url}" target="_blank" rel="noreferrer">Full details →</a>`:""}
+    </div>`;
+  } else {
+    cpHtml = `<div class="park-panel" style="opacity:0.65;">
+      <div class="section-label"><span>🅿</span><span>Car Parking</span></div>
+      <div class="park-notes">Car parking details not yet added for this route.</div>
+    </div>`;
+  }
+  document.getElementById("detail-carpark").innerHTML = cpHtml;
+
+  // Benches
+  // Rest points — supports both r.restPoints (new) and r.benches (legacy)
+  const restText = r.restPoints || r.benches || "";
+  document.getElementById("detail-benches").innerHTML=`
+    <div class="bench-panel" ${!restText?"style='opacity:0.65;'":""}>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#3A6B47;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+        <span>🪑</span><span>Seating &amp; Rest Points</span>
+      </div>
+      <div class="bench-text">${restText||"Seating and rest point details not yet added for this route."}</div>
+    </div>`;
+
+  // Notes
+  const notesText = r.notes || "";
+  document.getElementById("detail-notes").innerHTML = notesText ? `
+    <div class="bench-panel" style="border-left-color:#8C8480;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#8C8480;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+        <span>📝</span><span>Notes</span>
+      </div>
+      <div class="bench-text">${notesText}</div>
+    </div>` : "";
+
+  // Pub / café finder — Google Maps link only
+  const pubQ=encodeURIComponent(`pubs cafes near ${r.start}, North Yorkshire`);
+  document.getElementById("detail-pub").innerHTML=`
+    <div style="margin-bottom:14px;">
+      <div class="section-label"><span>🍺</span><span>Nearby Pubs &amp; Cafés</span></div>
+      <a class="pub-link" href="https://www.google.com/maps/search/${pubQ}" target="_blank" rel="noreferrer">
+        <span style="font-size:20px">🗺</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#2D2820">Search pubs &amp; cafés near start</div>
+          <div style="font-size:11px;color:#8C8480">Opens Google Maps</div>
+        </div>
+        <span style="font-size:12px;font-weight:600;color:#5B8FA8">Open →</span>
+      </a>
+    </div>`;
+
+  // Met Office weather + rain radar links
+  const radarLat = r.lat ? r.lat.toFixed(4) : "54.35";
+  const radarLng = r.lng ? r.lng.toFixed(4) : "-1.30";
+  const moCode = r.metOfficeCode || "gcxjvh611"; // fallback: Stokesley (central to walk area)
+  const metOfficeUrl = `https://weather.metoffice.gov.uk/forecast/${moCode}`;
+  const radarUrl = `https://weather.metoffice.gov.uk/maps-and-charts/rainfall-radar-forecast-map#?slatlong=${radarLat}%2C${radarLng}&layer=rainfall-rate`;
+  const moEl = document.getElementById("detail-metoffice");
+  if(moEl) moEl.innerHTML=`
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px;">
+      <a class="action-link" href="${metOfficeUrl}" target="_blank" rel="noreferrer" style="background:#EEF4FF;border-color:rgba(91,143,168,0.35);text-decoration:none;">
+        <span class="action-link-icon">🌦</span>
+        <div class="action-link-info">
+          <div class="action-link-title">Met Office Forecast</div>
+          <div class="action-link-sub">7-day forecast for nearest Met Office location</div>
+        </div>
+        <span class="action-link-cta">Open →</span>
+      </a>
+      <a class="action-link" href="${radarUrl}" target="_blank" rel="noreferrer" style="background:#EEF4FF;border-color:rgba(91,143,168,0.35);text-decoration:none;">
+        <span class="action-link-icon">🌧</span>
+        <div class="action-link-info">
+          <div class="action-link-title">Met Office Rain Radar</div>
+          <div class="action-link-sub">Live rainfall radar centred on walk area</div>
+        </div>
+        <span class="action-link-cta">Open →</span>
+      </a>
+    </div>`;
+
+  // GPX apps
+  gpxAppsOpen=false;
+  const gpxAppsEl=document.getElementById("gpx-apps");
+  if(gpxAppsEl) gpxAppsEl.classList.remove("open");
+  // Check if GPX files have been uploaded to GitHub yet
+  // GPX is ready if URL exists and doesn't contain the placeholder text.
+  // We check for the exact placeholder string only — if the user has
+  // replaced it with their real GitHub username, this passes.
+  if(gpxAppsEl) gpxAppsEl.innerHTML=`
+      <div class="gpx-app-row" onclick="openGpxApp('osmaps', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
+        <span class="gpx-icon">🗺</span>
+        <div><div class="gpx-name">OS Maps</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
+        <span class="gpx-arrow">›</span>
+      </div>
+      <div class="gpx-app-row" onclick="openGpxApp('komoot', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
+        <span class="gpx-icon">🏔</span>
+        <div><div class="gpx-name">Komoot</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
+        <span class="gpx-arrow">›</span>
+      </div>
+      <div class="gpx-app-row" onclick="openGpxApp('outdooractive', '${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;border-bottom:1px solid #D6CFBF;">
+        <span class="gpx-icon">🌿</span>
+        <div><div class="gpx-name">Outdooractive</div><div class="gpx-hint">Downloads GPX · then open app and import from Downloads folder</div></div>
+        <span class="gpx-arrow">›</span>
+      </div>
+      <a class="gpx-app-row" href="https://connect.garmin.com/modern/course/import?url=${encodeURIComponent(r.gpxUrl)}" target="_blank" rel="noreferrer" style="border-bottom:1px solid #D6CFBF;">
+        <span class="gpx-icon">⌚</span>
+        <div><div class="gpx-name">Garmin Connect</div><div class="gpx-hint">Sync to device</div></div>
+        <span class="gpx-arrow">›</span>
+      </a>
+      <div class="gpx-app-row" onclick="downloadGpx('${r.gpxUrl}', '${r.routeNo}-${r.name.replace(/[^a-zA-Z0-9]/g,"-")}')" style="cursor:pointer;">
+        <span class="gpx-icon">⬇</span>
+        <div><div class="gpx-name">Download GPX</div><div class="gpx-hint">Save file to device</div></div>
+        <span class="gpx-arrow">›</span>
+      </div>`;
+
+  // Weather
+  document.getElementById("detail-forecast").innerHTML="";
+  document.getElementById("detail-weather-loading").style.display="block";
+  loadRouteWeather(r.lat,r.lng);
+
+  // Open overlay
+  document.getElementById("detail-overlay").classList.add("open");
+  document.getElementById("detail-sheet").scrollTop=0;
+  document.body.style.overflow="hidden";
+  }catch(err){
+    console.error("openDetail error:", err);
+  }
+}
+
+function importRoutes(){
+  const raw = document.getElementById("import-textarea").value;
+  const errEl = document.getElementById("import-error");
+  errEl.style.display = "none";
+
+  if(!raw.trim()){
+    errEl.textContent = "Please paste the routes code first.";
+    errEl.style.display = "block";
+    return;
+  }
+
+  try{
+    // Find the opening [ of the array, ignoring any comments or "const ROUTES = " prefix
+    const bracketStart = raw.indexOf("[");
+    if(bracketStart === -1){
+      throw new Error("No array found. Copy the full output from the extractor starting with 'const ROUTES = ['");
+    }
+
+    // Find the matching closing ] — count brackets to handle nested objects
+    let depth = 0;
+    let bracketEnd = -1;
+    for(let i = bracketStart; i < raw.length; i++){
+      if(raw[i] === "[") depth++;
+      else if(raw[i] === "]"){ depth--; if(depth === 0){ bracketEnd = i; break; } }
+    }
+    if(bracketEnd === -1){
+      throw new Error("Array is not closed. Make sure you copied the complete output.");
+    }
+
+    const arrayCode = raw.slice(bracketStart, bracketEnd + 1);
+
+    // Evaluate the array
+    let parsed;
+    try{
+      parsed = (0, eval)("(" + arrayCode + ")");
+    } catch(evalErr){
+      throw new Error("Syntax error in routes data: " + evalErr.message + ". Check the extractor output is complete.");
+    }
+
+    if(!Array.isArray(parsed)) throw new Error("Expected an array of routes.");
+    if(parsed.length === 0) throw new Error("Array is empty — nothing to load.");
+
+    // Load into ROUTES
+    while(ROUTES.length) ROUTES.pop();
+    parsed.forEach(r => ROUTES.push(r));
+
+    // Close overlay and clear textarea
+    document.getElementById("import-overlay").classList.remove("open");
+    document.getElementById("import-textarea").value = "";
+
+    // Rebuild area filter
+    const sel = document.getElementById("area-filter");
+    while(sel.options.length > 0) sel.remove(0);
+    const allOpt = document.createElement("option");
+    allOpt.textContent = "All Areas"; sel.appendChild(allOpt);
+    [...new Set(ROUTES.map(r=>r.area).filter(Boolean))].sort()
+      .forEach(a=>{ const o=document.createElement("option"); o.textContent=a; sel.appendChild(o); });
+
+    // Reset search and filters
+    document.getElementById("search-input").value = "";
+    document.getElementById("diff-filter").value = "Difficulty";
+
+    // Refresh app
+    applyFilters();
+
+    // Refresh map
+    if(leafletMap){
+      Object.values(markers).forEach(m=>leafletMap.removeLayer(m));
+      markers={};
+      addAllMarkers();
+      updateMapMarkers();
+      const lats=ROUTES.map(r=>r.lat).filter(n=>n&&n!==0);
+      const lngs=ROUTES.map(r=>r.lng).filter(n=>n&&n!==0);
+      if(lats.length>0){
+        leafletMap.fitBounds([
+          [Math.min(...lats)-0.05, Math.min(...lngs)-0.05],
+          [Math.max(...lats)+0.05, Math.max(...lngs)+0.05]
+        ]);
+      }
+    } else {
+      setTimeout(initMap, 200);
+    }
+
+    // Success indicator
+    const btn = document.querySelector("#import-box button");
+    if(btn){ btn.textContent="✓ "+parsed.length+" routes loaded!"; btn.style.background="#3A6B47";
+      setTimeout(()=>{ btn.textContent="Load routes"; btn.style.background=""; }, 3000); }
+
+  } catch(e){
+    errEl.textContent = "Error: " + e.message;
+    errEl.style.display = "block";
+    errEl.style.padding = "10px";
+    errEl.style.background = "#FDECEC";
+    errEl.style.borderRadius = "6px";
+    console.error("importRoutes:", e);
+  }
+}
+
+
+// Open route in a navigation app
+// OS Maps and Komoot do not support direct GPX import via URL on desktop.
+// On mobile, we try the native app URL scheme.
+// On desktop, we download the GPX and open the app's website.
+function openGpxApp(app, gpxUrl, routeName){
+  const enc = encodeURIComponent(gpxUrl);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const appNames = {
+    osmaps: "OS Maps",
+    komoot: "Komoot",
+    outdooractive: "Outdooractive",
+  };
+
+  if(isMobile){
+    // On mobile: download the GPX file only.
+    // Auto-opening the app at the same time causes the download dialogue
+    // to be hidden behind the app before the user can confirm the save.
+    // User saves the file first, then opens the app and imports manually.
+    downloadGpx(gpxUrl, routeName || "route");
+    // Show a brief instruction toast
+    showToast("GPX saved to Downloads — open " + appNames[app] + " and import the file");
+  } else {
+    // On desktop: download the GPX file, then open the app's import page.
+    // The user imports the downloaded file manually.
+    const importPages = {
+      osmaps:        "https://explore.osmaps.com",
+      komoot:        "https://www.komoot.com",
+      outdooractive: "https://www.outdooractive.com",
+    };
+    // Download the GPX first
+    downloadGpx(gpxUrl, gpxUrl.split("/").pop().replace(".gpx",""));
+    // Open the app's website after a short delay
+    setTimeout(()=>{
+      window.open(importPages[app] || importPages.osmaps, "_blank");
+    }, 800);
+  }
+}
+
+// Download GPX file — fetches and saves it properly rather than opening in browser
+async function downloadGpx(url, filename){
+  const fname = (filename || "route") + ".gpx";
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if(isMobile){
+    // On mobile, programmatic a.click() after async/await is blocked as
+    // a non-user-gesture. Instead fetch the blob first, then show a
+    // visible tap-to-save link that the user taps directly.
+    try{
+      showToast("⏳ Preparing download...");
+      const resp = await fetch(url);
+      if(!resp.ok) throw new Error("HTTP " + resp.status);
+      const blob = await resp.blob();
+      const gpxBlob = new Blob([blob], {type:"application/gpx+xml"});
+      const blobUrl = URL.createObjectURL(gpxBlob);
+
+      // Remove loading toast
+      const t = document.getElementById("ww-toast");
+      if(t) t.remove();
+
+      // Show a tappable download link — this IS a direct user gesture
+      showDownloadLink(blobUrl, fname);
+
+    } catch(e){
+      const t = document.getElementById("ww-toast");
+      if(t) t.remove();
+      // Fallback: direct link to GitHub URL
+      showDownloadLink(url, fname);
+      console.warn("Blob download failed:", e.message);
+    }
+  } else {
+    // Desktop: fetch+blob works fine here
+    try{
+      const resp = await fetch(url);
+      if(!resp.ok) throw new Error("HTTP " + resp.status);
+      const blob = await resp.blob();
+      const gpxBlob = new Blob([blob], {type:"application/gpx+xml"});
+      const blobUrl = URL.createObjectURL(gpxBlob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = fname;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(blobUrl); }, 500);
+    } catch(e){
+      window.open(url, "_blank");
+      console.warn("Desktop download fallback:", e.message);
+    }
+  }
+}
+
+function showDownloadLink(blobUrl, fname){
+  // Show a prominent tap-to-save button as a toast overlay
+  // This is a real user-gesture link so the browser allows the download
+  const existing = document.getElementById("ww-toast");
+  if(existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.id = "ww-toast";
+  toast.style.cssText = [
+    "position:fixed","bottom:90px","left:50%","transform:translateX(-50%)",
+    "background:rgba(30,26,22,0.95)","color:#fff","padding:14px 18px",
+    "border-radius:12px","font-size:13px","font-family:Inter,sans-serif",
+    "max-width:90vw","text-align:center","z-index:9999",
+    "box-shadow:0 4px 20px rgba(0,0,0,0.4)","line-height:1.5",
+  ].join(";");
+
+  toast.innerHTML = `
+    <div style="margin-bottom:10px;font-size:12px;opacity:0.8;">Tap to save GPX file:</div>
+    <a href="${blobUrl}" download="${fname}"
+      style="display:inline-block;background:#3A6B47;color:#fff;padding:10px 20px;
+             border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;
+             font-family:Inter,sans-serif;"
+      onclick="setTimeout(()=>{const t=document.getElementById('ww-toast');if(t)t.remove();},1000)">
+      ⬇ ${fname}
+    </a>
+    <div style="margin-top:10px;font-size:11px;opacity:0.6;">
+      Then open OS Maps → Import → Downloads folder
+    </div>
+    <div style="margin-top:8px;">
+      <button onclick="document.getElementById('ww-toast').remove()"
+        style="background:transparent;border:1px solid rgba(255,255,255,0.3);
+               color:rgba(255,255,255,0.6);padding:4px 12px;border-radius:6px;
+               font-size:11px;cursor:pointer;font-family:Inter,sans-serif;">
+        Dismiss
+      </button>
+    </div>`;
+
+  document.body.appendChild(toast);
+  // Auto-dismiss after 20 seconds
+  setTimeout(()=>{ const t=document.getElementById("ww-toast"); if(t)t.remove(); }, 20000);
+}
+
+function showToast(msg){
+  // Show a temporary notification message at the bottom of the screen
+  const existing = document.getElementById("ww-toast");
+  if(existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.id = "ww-toast";
+  toast.textContent = msg;
+  toast.style.cssText = [
+    "position:fixed","bottom:90px","left:50%","transform:translateX(-50%)",
+    "background:rgba(30,26,22,0.92)","color:#fff","padding:12px 18px",
+    "border-radius:10px","font-size:13px","font-family:Inter,sans-serif",
+    "max-width:85vw","text-align:center","z-index:9999",
+    "box-shadow:0 4px 20px rgba(0,0,0,0.3)","line-height:1.4",
+  ].join(";");
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 5000);
+}
+
+function closeImport(){
+  document.getElementById("import-overlay").classList.remove("open");
+}
+
+// Secret tap on logo — 5 taps within 3 seconds reveals the Paste Routes button
+let _secretTaps=0, _secretTimer=null;
+function secretTap(){
+  _secretTaps++;
+  clearTimeout(_secretTimer);
+  if(_secretTaps>=5){
+    _secretTaps=0;
+    const btn=document.getElementById("paste-btn");
+    if(btn){
+      const isVisible=btn.style.display!=="none";
+      btn.style.display=isVisible?"none":"block";
+      showToast(isVisible?"Admin button hidden":"Admin mode on — paste button visible");
+    }
+  } else {
+    _secretTimer=setTimeout(()=>{ _secretTaps=0; },3000);
+  }
+}
+
+function openImport(){
+  document.getElementById("import-overlay").classList.add("open");
+}
+
+function closeDetail(){
+  document.getElementById("detail-overlay").classList.remove("open");
+  document.body.style.overflow="";
+  currentRoute=null;
+  closeRoutePreview();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ROUTE PREVIEW MAP
+// ─────────────────────────────────────────────────────────────────────────────
+let previewMap = null;
+
+function openRoutePreview(){
+  if(!currentRoute) return;
+  const r = currentRoute;
+  const modal = document.getElementById("route-preview-modal");
+  const statusEl = document.getElementById("preview-status");
+  const titleEl = document.getElementById("preview-title");
+  modal.style.display = "flex";
+  titleEl.textContent = r.name;
+  statusEl.textContent = "Loading route…";
+
+  // Initialise map (once) or reset view
+  setTimeout(()=>{
+    if(!previewMap){
+      previewMap = L.map("preview-map", {zoomControl:true, attributionControl:false});
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
+        maxZoom:18, subdomains:"abcd"
+      }).addTo(previewMap);
+    } else {
+      previewMap.eachLayer(layer=>{ if(layer instanceof L.Polyline || layer instanceof L.GeoJSON) previewMap.removeLayer(layer); });
+    }
+
+    // If no GPX URL, just centre on lat/lng
+    if(!r.gpxUrl){
+      if(r.lat && r.lng){ previewMap.setView([r.lat, r.lng], 13); }
+      statusEl.textContent = "No GPX file available for this route.";
+      previewMap.invalidateSize();
+      return;
+    }
+
+    // Fetch and parse GPX
+    fetch(r.gpxUrl)
+      .then(res=>{ if(!res.ok) throw new Error("Could not load GPX file"); return res.text(); })
+      .then(xml=>{
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xml, "application/xml");
+        const pts = Array.from(doc.querySelectorAll("trkpt,rtept"));
+        if(!pts.length) throw new Error("No track points found in GPX");
+        const latlngs = pts.map(p=>[ parseFloat(p.getAttribute("lat")), parseFloat(p.getAttribute("lon")) ]);
+        const polyline = L.polyline(latlngs, {color:"#C0392B", weight:3, opacity:0.85}).addTo(previewMap);
+        // Start marker
+        L.circleMarker(latlngs[0], {radius:5, color:"#3A6B47", fillColor:"#3A6B47", fillOpacity:1, weight:2}).addTo(previewMap);
+        previewMap.fitBounds(polyline.getBounds(), {padding:[16,16]});
+        previewMap.invalidateSize();
+        statusEl.textContent = `${fmtDist(r.distance)} · ${fmtAscent(r.ascent)} ascent · ${r.area}`;
+      })
+      .catch(err=>{
+        if(r.lat && r.lng){ previewMap.setView([r.lat, r.lng], 13); }
+        statusEl.textContent = "Could not load route: " + err.message;
+        previewMap.invalidateSize();
+      });
+  }, 50);
+}
+
+function closeRoutePreview(){
+  document.getElementById("route-preview-modal").style.display = "none";
+}
+
+function toggleGpxApps(){
+  gpxAppsOpen=!gpxAppsOpen;
+  const el=document.getElementById("gpx-apps");
+  if(el) el.classList.toggle("open",gpxAppsOpen);
+}
+
+function shareRoute(){
+  if(!currentRoute)return;
+  const r=currentRoute;
   // Use the permanent Vercel URL for sharing — works on any device
   const baseUrl = "https://walking-wednesdays.vercel.app";
   const url = `${baseUrl}?route=${r.routeNo}`;
