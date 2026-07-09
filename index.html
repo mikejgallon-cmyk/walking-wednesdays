@@ -133,16 +133,16 @@ document.head.appendChild(link);
   .badge-sm{font-size:9px;padding:1px 6px;}
 
   /* ── Detail sheet ── */
-  #detail-overlay{display:none;position:fixed;inset:0;z-index:9000;}
+  #detail-overlay{display:none;position:fixed;inset:0;z-index:9000;height:100dvh;}
   #detail-overlay.open{display:block;}
   #detail-backdrop{position:absolute;inset:0;background:rgba(30,26,22,0.55);backdrop-filter:blur(3px);}
-  #detail-sheet{position:absolute;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:#F7F4EF;border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease-out;}
+  #detail-sheet{position:absolute;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:#F7F4EF;border-radius:20px 20px 0 0;max-height:80dvh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease-out;}
   @keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-  #detail-handle-row{display:flex;justify-content:center;padding:12px 0 0;}
+  #detail-handle-row{display:flex;justify-content:center;padding:16px 0 0;}
   #detail-handle{width:36px;height:4px;border-radius:2px;background:#D6CFBF;}
 
   /* ── TOP CLOSE / INDEX BUTTON ── */
-  #detail-top-close{display:flex;align-items:center;justify-content:flex-start;padding:8px 16px 0;}
+  #detail-top-close{display:flex;align-items:center;justify-content:flex-start;padding:10px 16px 0;}
   #top-close-btn{display:flex;align-items:center;gap:6px;background:#5C3D6E;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(92,61,110,0.25);}
   #top-close-btn:hover,#top-close-btn:active{background:#7B5595;}
 
@@ -377,7 +377,7 @@ document.head.appendChild(link);
   <div id="detail-sheet">
     <div id="detail-handle-row"><div id="detail-handle"></div></div>
 
-    <!-- TOP CLOSE / INDEX BUTTON -->
+    <!-- TOP CLOSE BUTTON -->
     <div id="detail-top-close">
       <button id="top-close-btn" onclick="closeDetail()">
         🏠 Home
@@ -1852,6 +1852,3 @@ document.getElementById("leaflet-map").addEventListener("click",e=>{
 </script>
 </body>
 </html>
- 
-
- 
