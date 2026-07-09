@@ -895,15 +895,10 @@ function renderCards(){
 window.initMap = function initMap(){
   if(leafletMap||!window.L) return;
   leafletMap=L.map("leaflet-map",{center:[54.35,-1.30],zoom:9}); window.leafletMap=leafletMap;
-  // CartoDB Voyager tiles — free, no API key, no referer restriction.
-  // Works in StackBlitz, Vercel, and when opened directly from a file.
-  // For OS-style tiles (contours, footpaths): sign up free at thunderforest.com,
-  // get a free API key and replace the URL below with:
-  // https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=YOUR_KEY
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains:'abcd',
-    maxZoom:19
+  // Thunderforest Outdoors — footpaths, bridleways, contours, hill shading
+  L.tileLayer("https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=9b693b7cf00f4b0894f0f00dd8d154c9",{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.thunderforest.com">Thunderforest</a>',
+    maxZoom:22
   }).addTo(leafletMap);
   addAllMarkers();
 }
@@ -1591,8 +1586,9 @@ function openRoutePreview(){
   setTimeout(()=>{
     if(!previewMap){
       previewMap = L.map("preview-map", {zoomControl:true, attributionControl:false});
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
-        maxZoom:18, subdomains:"abcd"
+      L.tileLayer("https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=9b693b7cf00f4b0894f0f00dd8d154c9",{
+        maxZoom:22,
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.thunderforest.com">Thunderforest</a>'
       }).addTo(previewMap);
     } else {
       previewMap.eachLayer(layer=>{ if(layer instanceof L.Polyline || layer instanceof L.GeoJSON) previewMap.removeLayer(layer); });
