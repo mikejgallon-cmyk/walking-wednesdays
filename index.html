@@ -1695,14 +1695,17 @@ function applyFilters(){
   const start=document.getElementById("start-filter").value;
   const dist=document.getElementById("dist-filter").value;
   filteredRoutes=ROUTES.filter(r=>{
-    const mq=!q||(r.routeNo||"").toLowerCase().includes(q)||
-      (r.name||"").toLowerCase().includes(q)||
-      (r.area||"").toLowerCase().includes(q)||
-      (r.start||"").toLowerCase().includes(q)||
-      fmtDist(r.distance).toLowerCase().includes(q)||
-      fmtAscent(r.ascent).toLowerCase().includes(q)||
-      (r.difficulty||"").toLowerCase().includes(q)||
-      fmtDate(r.dateWalked).toLowerCase().includes(q);
+    const numericQuery=q&&/^\d+$/.test(q);
+    const mq=!q||(numericQuery
+      ? (r.routeNo||"").toLowerCase()===q
+      : (r.routeNo||"").toLowerCase().includes(q)||
+        (r.name||"").toLowerCase().includes(q)||
+        (r.area||"").toLowerCase().includes(q)||
+        (r.start||"").toLowerCase().includes(q)||
+        fmtDist(r.distance).toLowerCase().includes(q)||
+        fmtAscent(r.ascent).toLowerCase().includes(q)||
+        (r.difficulty||"").toLowerCase().includes(q)||
+        fmtDate(r.dateWalked).toLowerCase().includes(q));
     const ma=area==="All Areas"||r.area===area;
     const md=diff==="Difficulty"||(r.difficulty||"").toLowerCase()===diff.toLowerCase();
     const ms=start==="All Starts"||r.start===start;
