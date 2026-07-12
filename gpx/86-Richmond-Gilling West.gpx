@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="OS Maps - Web" xmlns="http://www.topografix.com/GPX/1/1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+xmlns:gs="http://www.topografix.com/GPX/gpx_style/0/2"
+xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1"
+xmlns:os="https://ordnancesurvey.co.uk/public/schema/route/0.1">
+    <metadata>
+        <name>Richmond-Gilling West 17-11-22</name>
+        <desc>8.3 miles 900 feet ascent</desc>
+        <bounds minlat="54.4115090" minlon="-1.7848560" maxlat="54.4451870" maxlon="-1.7187580"/>
+        <extensions>
+            <os:version>2.0</os:version>
+            <os:point lat="54.4131510" lon="-1.7376590" type="start"/>
+            <os:point lat="54.4131500" lon="-1.7375980" type="end"/>
+            <os:activity>ON_FOOT_WALKING</os:activity>
+            <os:difficulty>UNKNOWN</os:difficulty>
+            <os:paths/>
+            <os:distance>13375.5993049</os:distance>
+            <os:elevation_ascent>259.7300000</os:elevation_ascent>
+            <os:route_type>SINGLE</os:route_type>
+        </extensions>
+    </metadata>
+    <wpt lat="54.4131510" lon="-1.7376590"/>
+    <wpt lat="54.4131040" lon="-1.7447990"/>
+    <wpt lat="54.4133470" lon="-1.7496300"/>
+    <wpt lat="54.4137670" lon="-1.7529970"/>
+    <wpt lat="54.4134880" lon="-1.7554370"/>
+    <wpt lat="54.4140070" lon="-1.7564980"/>
+    <wpt lat="54.4160160" lon="-1.7550220"/>
+    <wpt lat="54.4163510" lon="-1.7549750"/>
+    <wpt lat="54.4199310" lon="-1.7628120"/>
+    <wpt lat="54.4213660" lon="-1.7712260"/>
+    <wpt lat="54.4220140" lon="-1.7725520"/>
+    <wpt lat="54.4227640" lon="-1.7734340"/>
+    <wpt lat="54.4240090" lon="-1.7771070"/>
+    <wpt lat="54.4236550" lon="-1.7811430"/>
+    <wpt lat="54.4239160" lon="-1.7827810"/>
+    <wpt lat="54.4254420" lon="-1.7848560"/>
+    <wpt lat="54.4291880" lon="-1.7746380"/>
+    <wpt lat="54.4329000" lon="-1.7694520"/>
+    <wpt lat="54.4353140" lon="-1.7645170"/>
+    <wpt lat="54.4362360" lon="-1.7615860"/>
+    <wpt lat="54.4363670" lon="-1.7623830"/>
+    <wpt lat="54.4376090" lon="-1.7607020"/>
+    <wpt lat="54.4382240" lon="-1.7587030"/>
+    <wpt lat="54.4388660" lon="-1.7575910"/>
+    <wpt lat="54.4394840" lon="-1.7572770"/>
+    <wpt lat="54.4407920" lon="-1.7539890"/>
+    <wpt lat="54.4417700" lon="-1.7527860"/>
+    <wpt lat="54.4431090" lon="-1.7520680"/>
+    <wpt lat="54.4442670" lon="-1.7511310"/>
+    <wpt lat="54.4451870" lon="-1.7472240"/>
+    <wpt lat="54.4419470" lon="-1.7384210"/>
+    <wpt lat="54.4424590" lon="-1.7366440"/>
+    <wpt lat="54.4428400" lon="-1.7337600"/>
+    <wpt lat="54.4426300" lon="-1.7319880"/>
+    <wpt lat="54.4421110" lon="-1.7301290"/>
+    <wpt lat="54.4404880" lon="-1.7263550"/>
+    <wpt lat="54.4415910" lon="-1.7237770"/>
+    <wpt lat="54.4414060" lon="-1.7215610"/>
+    <wpt lat="54.4414550" lon="-1.7205860"/>
+    <wpt lat="54.4412470" lon="-1.7194340"/>
+    <wpt lat="54.4404480" lon="-1.7197940"/>
+    <wpt lat="54.4383600" lon="-1.7200290"/>
+    <wpt lat="54.4359340" lon="-1.7187580"/>
+    <wpt lat="54.4354720" lon="-1.7198690"/>
+    <wpt lat="54.4339010" lon="-1.7206330"/>
+    <wpt lat="54.4320450" lon="-1.7209100"/>
+    <wpt lat="54.4303710" lon="-1.7220290"/>
+    <wpt lat="54.4270000" lon="-1.7255970"/>
+    <wpt lat="54.4262310" lon="-1.7255590"/>
+    <wpt lat="54.4214530" lon="-1.7299120"/>
+    <wpt lat="54.4209450" lon="-1.7301450"/>
+    <wpt lat="54.4197670" lon="-1.7296010"/>
+    <wpt lat="54.4191580" lon="-1.7325470"/>
+    <wpt lat="54.4169880" lon="-1.7311820"/>
+    <wpt lat="54.4167220" lon="-1.7319650"/>
+    <wpt lat="54.4136760" lon="-1.7335940"/>
+    <wpt lat="54.4115090" lon="-1.7337920"/>
+    <wpt lat="54.4131500" lon="-1.7375980"/>
+    <trk>
+        <name>Richmond-Gilling West 17-11-22</name>
+        <trkseg>
+            <trkpt lat="54.4131510" lon="-1.7376590"/>
+            <trkpt lat="54.4131040" lon="-1.7447990"/>
+            <trkpt lat="54.4133470" lon="-1.7496300"/>
+            <trkpt lat="54.4137670" lon="-1.7529970"/>
+            <trkpt lat="54.4134880" lon="-1.7554370"/>
+            <trkpt lat="54.4140070" lon="-1.7564980"/>
+            <trkpt lat="54.4160160" lon="-1.7550220"/>
+            <trkpt lat="54.4163510" lon="-1.7549750"/>
+            <trkpt lat="54.4181170" lon="-1.7589660"/>
+            <trkpt lat="54.4199310" lon="-1.7628120"/>
+            <trkpt lat="54.4204780" lon="-1.7657340"/>
+            <trkpt lat="54.4208970" lon="-1.7689240"/>
+            <trkpt lat="54.4213660" lon="-1.7712260"/>
+            <trkpt lat="54.4220140" lon="-1.7725520"/>
+            <trkpt lat="54.4227640" lon="-1.7734340"/>
+            <trkpt lat="54.4234380" lon="-1.7753370"/>
+            <trkpt lat="54.4236460" lon="-1.7760890"/>
+            <trkpt lat="54.4240090" lon="-1.7771070"/>
+            <trkpt lat="54.4236550" lon="-1.7811430"/>
+            <trkpt lat="54.4237080" lon="-1.7818960"/>
+            <trkpt lat="54.4239160" lon="-1.7827810"/>
+            <trkpt lat="54.4254420" lon="-1.7848560"/>
+            <trkpt lat="54.4291880" lon="-1.7746380"/>
+            <trkpt lat="54.4329000" lon="-1.7694520"/>
+            <trkpt lat="54.4353140" lon="-1.7645170"/>
+            <trkpt lat="54.4362360" lon="-1.7615860"/>
+            <trkpt lat="54.4363670" lon="-1.7623830"/>
+            <trkpt lat="54.4370940" lon="-1.7612370"/>
+            <trkpt lat="54.4376090" lon="-1.7607020"/>
+            <trkpt lat="54.4382240" lon="-1.7587030"/>
+            <trkpt lat="54.4388660" lon="-1.7575910"/>
+            <trkpt lat="54.4394840" lon="-1.7572770"/>
+            <trkpt lat="54.4407920" lon="-1.7539890"/>
+            <trkpt lat="54.4417700" lon="-1.7527860"/>
+            <trkpt lat="54.4431090" lon="-1.7520680"/>
+            <trkpt lat="54.4442670" lon="-1.7511310"/>
+            <trkpt lat="54.4449060" lon="-1.7482450"/>
+            <trkpt lat="54.4451870" lon="-1.7472240"/>
+            <trkpt lat="54.4419470" lon="-1.7384210"/>
+            <trkpt lat="54.4424590" lon="-1.7366440"/>
+            <trkpt lat="54.4428400" lon="-1.7337600"/>
+            <trkpt lat="54.4426300" lon="-1.7319880"/>
+            <trkpt lat="54.4421110" lon="-1.7301290"/>
+            <trkpt lat="54.4404880" lon="-1.7263550"/>
+            <trkpt lat="54.4415910" lon="-1.7237770"/>
+            <trkpt lat="54.4414060" lon="-1.7215610"/>
+            <trkpt lat="54.4414550" lon="-1.7205860"/>
+            <trkpt lat="54.4412470" lon="-1.7194340"/>
+            <trkpt lat="54.4404480" lon="-1.7197940"/>
+            <trkpt lat="54.4383600" lon="-1.7200290"/>
+            <trkpt lat="54.4359340" lon="-1.7187580"/>
+            <trkpt lat="54.4354720" lon="-1.7198690"/>
+            <trkpt lat="54.4339010" lon="-1.7206330"/>
+            <trkpt lat="54.4320450" lon="-1.7209100"/>
+            <trkpt lat="54.4315040" lon="-1.7214010"/>
+            <trkpt lat="54.4303710" lon="-1.7220290"/>
+            <trkpt lat="54.4288010" lon="-1.7236350"/>
+            <trkpt lat="54.4270000" lon="-1.7255970"/>
+            <trkpt lat="54.4262310" lon="-1.7255590"/>
+            <trkpt lat="54.4237750" lon="-1.7277820"/>
+            <trkpt lat="54.4214530" lon="-1.7299120"/>
+            <trkpt lat="54.4209450" lon="-1.7301450"/>
+            <trkpt lat="54.4204090" lon="-1.7298720"/>
+            <trkpt lat="54.4197670" lon="-1.7296010"/>
+            <trkpt lat="54.4191580" lon="-1.7325470"/>
+            <trkpt lat="54.4169880" lon="-1.7311820"/>
+            <trkpt lat="54.4167220" lon="-1.7319650"/>
+            <trkpt lat="54.4149050" lon="-1.7329890"/>
+            <trkpt lat="54.4136760" lon="-1.7335940"/>
+            <trkpt lat="54.4115090" lon="-1.7337920"/>
+            <trkpt lat="54.4131500" lon="-1.7375980"/>
+            <extensions>
+                <gs:line>
+                    <gs:color>D40058</gs:color>
+                    <gs:opacity>1.0</gs:opacity>
+                    <gs:width>4.0</gs:width>
+                </gs:line>
+            </extensions>
+        </trkseg>
+    </trk>
+</gpx>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="OS Maps - Web" xmlns="http://www.topografix.com/GPX/1/1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+xmlns:gs="http://www.topografix.com/GPX/gpx_style/0/2"
+xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1"
+xmlns:os="https://ordnancesurvey.co.uk/public/schema/route/0.1">
+    <metadata>
+        <name>Guisborough to Skelton Upleatham</name>
+        <desc>9.0 miles 1044 feet ascent</desc>
+        <bounds minlat="54.5331795" minlon="-1.0469251" maxlat="54.5691664" maxlon="-0.9861023"/>
+        <extensions>
+            <os:version>2.0</os:version>
+            <os:surface_types>
+                <os:surface_type>4</os:surface_type>
+                <os:surface_type>99</os:surface_type>
+            </os:surface_types>
+            <os:point lat="54.5370640" lon="-1.0469251" type="start"/>
+            <os:point lat="54.5370437" lon="-1.0465113" type="end"/>
+            <os:activity>ON_FOOT_WALKING</os:activity>
+            <os:difficulty>UNKNOWN</os:difficulty>
+            <os:paths>
+                <os:path start="0" end="70" type="plotted"/>
+            </os:paths>
+            <os:distance>14488.3056272</os:distance>
+            <os:elevation_ascent>319.3500000</os:elevation_ascent>
+            <os:route_type>SINGLE</os:route_type>
+        </extensions>
+    </metadata>
+    <wpt lat="54.5370640" lon="-1.0469251"/>
+    <wpt lat="54.5420139" lon="-1.0455113"/>
+    <wpt lat="54.5452218" lon="-1.0420356"/>
+    <wpt lat="54.5481692" lon="-1.0374523"/>
+    <wpt lat="54.5508879" lon="-1.0402949"/>
+    <wpt lat="54.5513134" lon="-1.0395428"/>
+    <wpt lat="54.5519190" lon="-1.0393959"/>
+    <wpt lat="54.5526505" lon="-1.0353201"/>
+    <wpt lat="54.5536032" lon="-1.0336355"/>
+    <wpt lat="54.5552145" lon="-1.0328243"/>
+    <wpt lat="54.5572159" lon="-1.0274422"/>
+    <wpt lat="54.5583769" lon="-1.0265254"/>
+    <wpt lat="54.5599695" lon="-1.0290004"/>
+    <wpt lat="54.5601798" lon="-1.0300006"/>
+    <wpt lat="54.5619493" lon="-1.0321237"/>
+    <wpt lat="54.5635214" lon="-1.0320478"/>
+    <wpt lat="54.5647920" lon="-1.0307804"/>
+    <wpt lat="54.5656524" lon="-1.0316107"/>
+    <wpt lat="54.5662044" lon="-1.0305966"/>
+    <wpt lat="54.5652404" lon="-1.0280675"/>
+    <wpt lat="54.5653990" lon="-1.0254345"/>
+    <wpt lat="54.5680259" lon="-1.0168648"/>
+    <wpt lat="54.5691664" lon="-1.0154887"/>
+    <wpt lat="54.5683141" lon="-1.0123539"/>
+    <wpt lat="54.5660699" lon="-1.0148827"/>
+    <wpt lat="54.5659342" lon="-1.0158759"/>
+    <wpt lat="54.5642547" lon="-1.0126994"/>
+    <wpt lat="54.5645615" lon="-1.0106505"/>
+    <wpt lat="54.5643666" lon="-1.0087993"/>
+    <wpt lat="54.5646465" lon="-1.0078646"/>
+    <wpt lat="54.5640927" lon="-1.0060840"/>
+    <wpt lat="54.5605717" lon="-1.0019633"/>
+    <wpt lat="54.5597292" lon="-1.0000663"/>
+    <wpt lat="54.5606407" lon="-0.9972604"/>
+    <wpt lat="54.5608183" lon="-0.9926785"/>
+    <wpt lat="54.5556740" lon="-0.9922486"/>
+    <wpt lat="54.5560596" lon="-0.9910639"/>
+    <wpt lat="54.5546440" lon="-0.9894290"/>
+    <wpt lat="54.5541310" lon="-0.9882665"/>
+    <wpt lat="54.5541128" lon="-0.9861023"/>
+    <wpt lat="54.5514718" lon="-0.9883942"/>
+    <wpt lat="54.5495655" lon="-0.9925847"/>
+    <wpt lat="54.5451323" lon="-0.9998667"/>
+    <wpt lat="54.5434917" lon="-1.0014526"/>
+    <wpt lat="54.5401802" lon="-1.0053049"/>
+    <wpt lat="54.5392655" lon="-1.0077383"/>
+    <wpt lat="54.5394695" lon="-1.0107010"/>
+    <wpt lat="54.5382930" lon="-1.0119041"/>
+    <wpt lat="54.5369981" lon="-1.0118117"/>
+    <wpt lat="54.5360651" lon="-1.0120197"/>
+    <wpt lat="54.5357599" lon="-1.0098634"/>
+    <wpt lat="54.5338985" lon="-1.0108357"/>
+    <wpt lat="54.5337944" lon="-1.0205775"/>
+    <wpt lat="54.5348183" lon="-1.0238448"/>
+    <wpt lat="54.5331795" lon="-1.0296019"/>
+    <wpt lat="54.5333363" lon="-1.0323413"/>
+    <wpt lat="54.5344432" lon="-1.0359083"/>
+    <wpt lat="54.5357236" lon="-1.0386987"/>
+    <wpt lat="54.5354180" lon="-1.0398263"/>
+    <wpt lat="54.5359100" lon="-1.0423649"/>
+    <wpt lat="54.5370437" lon="-1.0465113"/>
+    <trk>
+        <name>Guisborough to Skelton Upleatham</name>
+        <trkseg>
+            <trkpt lat="54.5370640" lon="-1.0469251"/>
+            <trkpt lat="54.5416204" lon="-1.0457678"/>
+            <trkpt lat="54.5420139" lon="-1.0455113"/>
+            <trkpt lat="54.5452218" lon="-1.0420356"/>
+            <trkpt lat="54.5469624" lon="-1.0393977"/>
+            <trkpt lat="54.5481692" lon="-1.0374523"/>
+            <trkpt lat="54.5497285" lon="-1.0391472"/>
+            <trkpt lat="54.5508879" lon="-1.0402949"/>
+            <trkpt lat="54.5513134" lon="-1.0395428"/>
+            <trkpt lat="54.5519190" lon="-1.0393959"/>
+            <trkpt lat="54.5526505" lon="-1.0353201"/>
+            <trkpt lat="54.5536032" lon="-1.0336355"/>
+            <trkpt lat="54.5552145" lon="-1.0328243"/>
+            <trkpt lat="54.5572159" lon="-1.0274422"/>
+            <trkpt lat="54.5583769" lon="-1.0265254"/>
+            <trkpt lat="54.5599695" lon="-1.0290004"/>
+            <trkpt lat="54.5601798" lon="-1.0300006"/>
+            <trkpt lat="54.5619493" lon="-1.0321237"/>
+            <trkpt lat="54.5629158" lon="-1.0321781"/>
+            <trkpt lat="54.5635214" lon="-1.0320478"/>
+            <trkpt lat="54.5647920" lon="-1.0307804"/>
+            <trkpt lat="54.5656524" lon="-1.0316107"/>
+            <trkpt lat="54.5662044" lon="-1.0305966"/>
+            <trkpt lat="54.5652404" lon="-1.0280675"/>
+            <trkpt lat="54.5653990" lon="-1.0254345"/>
+            <trkpt lat="54.5669952" lon="-1.0199830"/>
+            <trkpt lat="54.5680259" lon="-1.0168648"/>
+            <trkpt lat="54.5691664" lon="-1.0154887"/>
+            <trkpt lat="54.5683141" lon="-1.0123539"/>
+            <trkpt lat="54.5675664" lon="-1.0132381"/>
+            <trkpt lat="54.5660699" lon="-1.0148827"/>
+            <trkpt lat="54.5659342" lon="-1.0158759"/>
+            <trkpt lat="54.5642547" lon="-1.0126994"/>
+            <trkpt lat="54.5645615" lon="-1.0106505"/>
+            <trkpt lat="54.5643666" lon="-1.0087993"/>
+            <trkpt lat="54.5646465" lon="-1.0078646"/>
+            <trkpt lat="54.5640927" lon="-1.0060840"/>
+            <trkpt lat="54.5605717" lon="-1.0019633"/>
+            <trkpt lat="54.5597292" lon="-1.0000663"/>
+            <trkpt lat="54.5606407" lon="-0.9972604"/>
+            <trkpt lat="54.5608183" lon="-0.9926785"/>
+            <trkpt lat="54.5587681" lon="-0.9925435"/>
+            <trkpt lat="54.5556740" lon="-0.9922486"/>
+            <trkpt lat="54.5560596" lon="-0.9910639"/>
+            <trkpt lat="54.5546440" lon="-0.9894290"/>
+            <trkpt lat="54.5541310" lon="-0.9882665"/>
+            <trkpt lat="54.5541128" lon="-0.9861023"/>
+            <trkpt lat="54.5514718" lon="-0.9883942"/>
+            <trkpt lat="54.5495655" lon="-0.9925847"/>
+            <trkpt lat="54.5481114" lon="-0.9949704"/>
+            <trkpt lat="54.5465161" lon="-0.9976686"/>
+            <trkpt lat="54.5451323" lon="-0.9998667"/>
+            <trkpt lat="54.5434917" lon="-1.0014526"/>
+            <trkpt lat="54.5401802" lon="-1.0053049"/>
+            <trkpt lat="54.5392655" lon="-1.0077383"/>
+            <trkpt lat="54.5394695" lon="-1.0107010"/>
+            <trkpt lat="54.5382930" lon="-1.0119041"/>
+            <trkpt lat="54.5369981" lon="-1.0118117"/>
+            <trkpt lat="54.5360651" lon="-1.0120197"/>
+            <trkpt lat="54.5357599" lon="-1.0098634"/>
+            <trkpt lat="54.5338985" lon="-1.0108357"/>
+            <trkpt lat="54.5337944" lon="-1.0205775"/>
+            <trkpt lat="54.5348183" lon="-1.0238448"/>
+            <trkpt lat="54.5331795" lon="-1.0296019"/>
+            <trkpt lat="54.5333363" lon="-1.0323413"/>
+            <trkpt lat="54.5344432" lon="-1.0359083"/>
+            <trkpt lat="54.5357236" lon="-1.0386987"/>
+            <trkpt lat="54.5354180" lon="-1.0398263"/>
+            <trkpt lat="54.5359100" lon="-1.0423649"/>
+            <trkpt lat="54.5370437" lon="-1.0465113"/>
+            <extensions>
+                <gs:line>
+                    <gs:color>453c90</gs:color>
+                    <gs:opacity>1.0</gs:opacity>
+                    <gs:width>6.0</gs:width>
+                </gs:line>
+            </extensions>
+        </trkseg>
+    </trk>
+</gpx>
