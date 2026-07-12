@@ -127,8 +127,9 @@ document.head.appendChild(link);
   .card-body{padding:11px 14px;flex:1;min-width:0;}
   .card-inner{display:flex;align-items:stretch;}
   .card-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#5C3D6E;margin-bottom:2px;}
-  .card-name{font-size:14px;font-family:'Libre Baskerville',Georgia,serif;color:#2D2820;font-weight:700;line-height:1.25;margin-bottom:5px;}
-  .card-stats{display:flex;gap:8px;font-size:11px;color:#8C8480;flex-wrap:wrap;align-items:center;}
+  .card-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px;}
+  .card-name{font-size:14px;font-family:'Libre Baskerville',Georgia,serif;color:#2D2820;font-weight:700;line-height:1.25;flex:1;min-width:0;}
+  .card-stats{display:flex;gap:6px;font-size:11px;color:#8C8480;flex-wrap:nowrap;align-items:center;flex-shrink:0;text-align:right;}
 
   /* ── Badge ── */
   .badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:2px 8px;border-radius:20px;white-space:nowrap;}
@@ -461,7 +462,7 @@ const ROUTES = [
     lng: -1.675207,
     gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/45-Bishop Auckland Circular.gpx",
     description: "",
-    carParking: "",
+    carParking: "Freecar park by the river or roadside parking.",
     restPoints: "",
     notes: "",
     metOfficeCode: "gcwycz4xn",
@@ -1763,12 +1764,13 @@ function renderCards(){
         <div class="card-stripe" style="background:${d.color}"></div>
         <div class="card-body">
           <div class="card-eyebrow">${r.routeNo} · ${r.area}${r.dateWalked?` · 📅 ${fmtDate(r.dateWalked)}`:""}</div>
-          <div class="card-name">${r.name}</div>
-          <div class="card-stats">
-            <span>◈ ${fmtDist(r.distance)}</span>
-            ${r.ascent||r.ascent===0?`<span>▲ ${fmtAscent(r.ascent)}</span>`:""}
-            <span>${fmtType(r.type)}</span>
-            ${badge(d.label,d.color,true)}
+          <div class="card-name-row">
+            <div class="card-name">${r.name}</div>
+            <div class="card-stats">
+              <span>◈ ${fmtDist(r.distance)}</span>
+              ${r.ascent||r.ascent===0?`<span>▲ ${fmtAscent(r.ascent)}</span>`:""}
+              ${badge(d.label,d.color,true)}
+            </div>
           </div>
         </div>
         <div style="display:flex;align-items:center;padding-right:14px;color:#C4A8D4;font-size:16px;">›</div>
