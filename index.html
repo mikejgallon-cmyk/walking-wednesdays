@@ -1871,12 +1871,22 @@ function addAllMarkers(){
 }
 
 function updateMapMarkers(){
-  // Dim non-matching markers
+  const single=filteredRoutes.length===1;
   Object.entries(markers).forEach(([rno,marker])=>{
     const inFilter=filteredRoutes.some(r=>r.routeNo===rno);
     const el=marker.getElement();
-    if(el) el.style.opacity=inFilter?"1":"0.3";
+    if(el){
+      if(inFilter){el.style.opacity="1";el.style.pointerEvents="";}
+      else if(single){el.style.opacity="0";el.style.pointerEvents="none";}
+      else{el.style.opacity="0.25";el.style.pointerEvents="none";}
+    }
   });
+  // Pan map to the matching pin when a single result is shown
+  if(single){
+    const r=filteredRoutes[0];
+    const marker=markers[r.routeNo];
+    if(marker&&leafletMap) leafletMap.setView(marker.getLatLng(),13,{animate:true});
+  }
 }
 
 function showTooltip(r){
