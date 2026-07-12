@@ -2501,7 +2501,7 @@ function openRoutePreview(){
         attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.thunderforest.com">Thunderforest</a>'
       }).addTo(previewMap);
     } else {
-      previewMap.eachLayer(layer=>{ if(layer instanceof L.Polyline || layer instanceof L.GeoJSON) previewMap.removeLayer(layer); });
+      previewMap.eachLayer(layer=>{ if(!(layer instanceof L.TileLayer)) previewMap.removeLayer(layer); });
     }
 
     // If no GPX URL, just centre on lat/lng
