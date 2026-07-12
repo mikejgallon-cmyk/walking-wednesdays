@@ -202,6 +202,9 @@ document.head.appendChild(link);
 
   /* Share + GPX */
   .primary-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;border:none;}
+  #detail-btn-grid,#detail-btn-top,#detail-btn-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 4px;}
+  #detail-btn-bottom{padding:4px 0 4px;}
+  .detail-grid-btn{border:none;border-radius:10px;padding:10px 8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1.2;}
   .btn-share{background:#F0E8F8;color:#5C3D6E;border:1px solid #C4A8D4 !important;}
   .btn-open{background:#5C3D6E;color:#fff;}
   .btn-close{background:#EDE8DF;color:#8C8480;}
@@ -375,6 +378,10 @@ document.head.appendChild(link);
       <div id="detail-name"></div>
       <div id="detail-stats-grid"></div>
     </div>
+    <div id="detail-btn-top">
+      <button class="detail-grid-btn" style="background:#3A6B47;color:#fff;" onclick="openRoutePreview()">🗺️<span>Preview map</span></button>
+      <button class="detail-grid-btn" style="background:#5C3D6E;color:#fff;" onclick="closeDetail()">🏠<span>Home</span></button>
+    </div>
     <div id="detail-body">
       <div id="detail-date-row" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;"></div>
       <div id="detail-desc" class="detail-desc"></div>
@@ -397,11 +404,11 @@ document.head.appendChild(link);
         <div id="detail-forecast"></div>
         <div id="detail-metoffice"></div>
       </div>
-      <button class="primary-btn" onclick="openRoutePreview()" style="background:#3A6B47;color:#fff;border:none;">🗺️ Preview route map</button>
-      <button class="primary-btn btn-open" onclick="toggleGpxApps()">🥾 Open route in…</button>
+      <div id="detail-btn-bottom">
+        <button class="detail-grid-btn btn-open" style="background:#F0E8F8;color:#5C3D6E;border:1px solid #C4A8D4;" onclick="toggleGpxApps()">🥾<span>Open route in…</span></button>
+        <button class="detail-grid-btn" style="background:#5C3D6E;color:#fff;" onclick="shareRoute()">📤<span>Share walk</span></button>
+      </div>
       <div id="gpx-apps"></div>
-      <button class="primary-btn btn-share" onclick="shareRoute()" style="background:#5C3D6E;color:#fff;border:none;">📤 Share this walk</button>
-      <button class="primary-btn btn-close" onclick="closeDetail()" style="margin-top:0;background:#5C3D6E;color:#fff;font-weight:700;">🏠 Home</button>
     </div>
   </div>
 </div>
@@ -2523,7 +2530,11 @@ function closeRoutePreview(){
 function toggleGpxApps(){
   gpxAppsOpen=!gpxAppsOpen;
   const el=document.getElementById("gpx-apps");
-  if(el) el.classList.toggle("open",gpxAppsOpen);
+  const btn=document.getElementById("detail-btn-bottom");
+  if(el){
+    el.classList.toggle("open",gpxAppsOpen);
+    if(gpxAppsOpen && btn) setTimeout(()=>btn.scrollIntoView({behavior:"smooth",block:"start"}),50);
+  }
 }
 
 function shareRoute(){
