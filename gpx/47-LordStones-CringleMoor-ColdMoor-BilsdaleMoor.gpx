@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="OS Maps - Web" xmlns="http://www.topografix.com/GPX/1/1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+xmlns:gs="http://www.topografix.com/GPX/gpx_style/0/2"
+xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1"
+xmlns:os="https://ordnancesurvey.co.uk/public/schema/route/0.1">
+    <metadata>
+        <name>Lord Stones-Cringle Moor-Cold Moor-Bilsdale Moor</name>
+        <desc></desc>
+        <bounds minlat="54.3938333" minlon="-1.1978379" maxlat="54.4235544" maxlon="-1.1496437"/>
+        <extensions>
+            <os:version>2.0</os:version>
+            <os:surface_types>
+                <os:surface_type>4</os:surface_type>
+            </os:surface_types>
+            <os:point lat="54.4204365" lon="-1.1931425" type="start"/>
+            <os:point lat="54.4203941" lon="-1.1935287" type="end"/>
+            <os:activity>ON_FOOT_WALKING</os:activity>
+            <os:difficulty>UNKNOWN</os:difficulty>
+            <os:paths>
+                <os:path start="0" end="79" type="plotted"/>
+            </os:paths>
+            <os:distance>11723.3459041</os:distance>
+            <os:elevation_ascent>466.7000000</os:elevation_ascent>
+            <os:route_type>SINGLE</os:route_type>
+        </extensions>
+    </metadata>
+    <wpt lat="54.4204365" lon="-1.1931425"/>
+    <wpt lat="54.4207659" lon="-1.1919995"/>
+    <wpt lat="54.4209101" lon="-1.1883749"/>
+    <wpt lat="54.4206752" lon="-1.1851817"/>
+    <wpt lat="54.4228223" lon="-1.1771055"/>
+    <wpt lat="54.4210026" lon="-1.1738477"/>
+    <wpt lat="54.4211164" lon="-1.1675073"/>
+    <wpt lat="54.4224141" lon="-1.1650921"/>
+    <wpt lat="54.4231788" lon="-1.1619556"/>
+    <wpt lat="54.4233116" lon="-1.1600456"/>
+    <wpt lat="54.4227684" lon="-1.1594787"/>
+    <wpt lat="54.4227894" lon="-1.1576481"/>
+    <wpt lat="54.4232517" lon="-1.1562900"/>
+    <wpt lat="54.4235544" lon="-1.1529894"/>
+    <wpt lat="54.4214431" lon="-1.1530907"/>
+    <wpt lat="54.4198621" lon="-1.1519096"/>
+    <wpt lat="54.4159144" lon="-1.1512784"/>
+    <wpt lat="54.4144780" lon="-1.1515007"/>
+    <wpt lat="54.4140987" lon="-1.1518745"/>
+    <wpt lat="54.4083423" lon="-1.1496437"/>
+    <wpt lat="54.4070521" lon="-1.1514806"/>
+    <wpt lat="54.4062679" lon="-1.1534033"/>
+    <wpt lat="54.4038856" lon="-1.1565141"/>
+    <wpt lat="54.4025685" lon="-1.1577350"/>
+    <wpt lat="54.4005541" lon="-1.1588546"/>
+    <wpt lat="54.3999441" lon="-1.1599838"/>
+    <wpt lat="54.3988286" lon="-1.1611233"/>
+    <wpt lat="54.3975691" lon="-1.1609372"/>
+    <wpt lat="54.3972916" lon="-1.1614242"/>
+    <wpt lat="54.3973983" lon="-1.1622307"/>
+    <wpt lat="54.3966870" lon="-1.1649599"/>
+    <wpt lat="54.3982351" lon="-1.1646396"/>
+    <wpt lat="54.3973827" lon="-1.1697399"/>
+    <wpt lat="54.3979454" lon="-1.1715191"/>
+    <wpt lat="54.3979153" lon="-1.1720396"/>
+    <wpt lat="54.3968951" lon="-1.1723489"/>
+    <wpt lat="54.3964566" lon="-1.1772287"/>
+    <wpt lat="54.3959193" lon="-1.1791648"/>
+    <wpt lat="54.3959500" lon="-1.1803771"/>
+    <wpt lat="54.3964713" lon="-1.1810405"/>
+    <wpt lat="54.3963179" lon="-1.1832769"/>
+    <wpt lat="54.3949637" lon="-1.1873661"/>
+    <wpt lat="54.3941081" lon="-1.1887691"/>
+    <wpt lat="54.3938333" lon="-1.1896794"/>
+    <wpt lat="54.3948526" lon="-1.1925856"/>
+    <wpt lat="54.3951420" lon="-1.1938698"/>
+    <wpt lat="54.3958021" lon="-1.1951468"/>
+    <wpt lat="54.3975584" lon="-1.1957093"/>
+    <wpt lat="54.3982487" lon="-1.1964660"/>
+    <wpt lat="54.3988574" lon="-1.1967622"/>
+    <wpt lat="54.4019134" lon="-1.1968180"/>
+    <wpt lat="54.4029081" lon="-1.1960476"/>
+    <wpt lat="54.4050198" lon="-1.1959870"/>
+    <wpt lat="54.4062490" lon="-1.1966948"/>
+    <wpt lat="54.4095818" lon="-1.1978237"/>
+    <wpt lat="54.4108289" lon="-1.1978379"/>
+    <wpt lat="54.4120050" lon="-1.1973142"/>
+    <wpt lat="54.4139569" lon="-1.1968908"/>
+    <wpt lat="54.4154760" lon="-1.1972657"/>
+    <wpt lat="54.4167970" lon="-1.1965657"/>
+    <wpt lat="54.4176738" lon="-1.1966449"/>
+    <wpt lat="54.4182079" lon="-1.1958831"/>
+    <wpt lat="54.4187364" lon="-1.1959499"/>
+    <wpt lat="54.4195057" lon="-1.1950679"/>
+    <wpt lat="54.4203941" lon="-1.1935287"/>
+    <trk>
+        <name>Lord Stones-Cringle Moor-Cold Moor-Bilsdale Moor</name>
+        <trkseg>
+            <trkpt lat="54.4204365" lon="-1.1931425"/>
+            <trkpt lat="54.4207659" lon="-1.1919995"/>
+            <trkpt lat="54.4209101" lon="-1.1883749"/>
+            <trkpt lat="54.4206752" lon="-1.1851817"/>
+            <trkpt lat="54.4228223" lon="-1.1771055"/>
+            <trkpt lat="54.4210026" lon="-1.1738477"/>
+            <trkpt lat="54.4210047" lon="-1.1708616"/>
+            <trkpt lat="54.4211164" lon="-1.1675073"/>
+            <trkpt lat="54.4224141" lon="-1.1650921"/>
+            <trkpt lat="54.4231788" lon="-1.1619556"/>
+            <trkpt lat="54.4233116" lon="-1.1600456"/>
+            <trkpt lat="54.4227684" lon="-1.1594787"/>
+            <trkpt lat="54.4227894" lon="-1.1576481"/>
+            <trkpt lat="54.4232517" lon="-1.1562900"/>
+            <trkpt lat="54.4235544" lon="-1.1529894"/>
+            <trkpt lat="54.4225539" lon="-1.1528944"/>
+            <trkpt lat="54.4214431" lon="-1.1530907"/>
+            <trkpt lat="54.4198621" lon="-1.1519096"/>
+            <trkpt lat="54.4189618" lon="-1.1516970"/>
+            <trkpt lat="54.4176809" lon="-1.1516657"/>
+            <trkpt lat="54.4159144" lon="-1.1512784"/>
+            <trkpt lat="54.4144780" lon="-1.1515007"/>
+            <trkpt lat="54.4140987" lon="-1.1518745"/>
+            <trkpt lat="54.4083423" lon="-1.1496437"/>
+            <trkpt lat="54.4070521" lon="-1.1514806"/>
+            <trkpt lat="54.4062679" lon="-1.1534033"/>
+            <trkpt lat="54.4038856" lon="-1.1565141"/>
+            <trkpt lat="54.4025685" lon="-1.1577350"/>
+            <trkpt lat="54.4016053" lon="-1.1581591"/>
+            <trkpt lat="54.4005541" lon="-1.1588546"/>
+            <trkpt lat="54.3999441" lon="-1.1599838"/>
+            <trkpt lat="54.3988286" lon="-1.1611233"/>
+            <trkpt lat="54.3975691" lon="-1.1609372"/>
+            <trkpt lat="54.3972916" lon="-1.1614242"/>
+            <trkpt lat="54.3973983" lon="-1.1622307"/>
+            <trkpt lat="54.3966870" lon="-1.1649599"/>
+            <trkpt lat="54.3982351" lon="-1.1646396"/>
+            <trkpt lat="54.3975850" lon="-1.1681185"/>
+            <trkpt lat="54.3973827" lon="-1.1697399"/>
+            <trkpt lat="54.3979454" lon="-1.1715191"/>
+            <trkpt lat="54.3979153" lon="-1.1720396"/>
+            <trkpt lat="54.3968951" lon="-1.1723489"/>
+            <trkpt lat="54.3968135" lon="-1.1735635"/>
+            <trkpt lat="54.3965805" lon="-1.1756283"/>
+            <trkpt lat="54.3964566" lon="-1.1772287"/>
+            <trkpt lat="54.3959193" lon="-1.1791648"/>
+            <trkpt lat="54.3959500" lon="-1.1803771"/>
+            <trkpt lat="54.3964713" lon="-1.1810405"/>
+            <trkpt lat="54.3963179" lon="-1.1832769"/>
+            <trkpt lat="54.3958998" lon="-1.1845752"/>
+            <trkpt lat="54.3955463" lon="-1.1854678"/>
+            <trkpt lat="54.3949637" lon="-1.1873661"/>
+            <trkpt lat="54.3941081" lon="-1.1887691"/>
+            <trkpt lat="54.3938333" lon="-1.1896794"/>
+            <trkpt lat="54.3943048" lon="-1.1913065"/>
+            <trkpt lat="54.3948526" lon="-1.1925856"/>
+            <trkpt lat="54.3951420" lon="-1.1938698"/>
+            <trkpt lat="54.3958021" lon="-1.1951468"/>
+            <trkpt lat="54.3967477" lon="-1.1954364"/>
+            <trkpt lat="54.3975584" lon="-1.1957093"/>
+            <trkpt lat="54.3982487" lon="-1.1964660"/>
+            <trkpt lat="54.3988574" lon="-1.1967622"/>
+            <trkpt lat="54.4019134" lon="-1.1968180"/>
+            <trkpt lat="54.4029081" lon="-1.1960476"/>
+            <trkpt lat="54.4050198" lon="-1.1959870"/>
+            <trkpt lat="54.4062490" lon="-1.1966948"/>
+            <trkpt lat="54.4087594" lon="-1.1974739"/>
+            <trkpt lat="54.4095818" lon="-1.1978237"/>
+            <trkpt lat="54.4108289" lon="-1.1978379"/>
+            <trkpt lat="54.4120050" lon="-1.1973142"/>
+            <trkpt lat="54.4126678" lon="-1.1973205"/>
+            <trkpt lat="54.4139569" lon="-1.1968908"/>
+            <trkpt lat="54.4154760" lon="-1.1972657"/>
+            <trkpt lat="54.4167970" lon="-1.1965657"/>
+            <trkpt lat="54.4173022" lon="-1.1965173"/>
+            <trkpt lat="54.4176738" lon="-1.1966449"/>
+            <trkpt lat="54.4182079" lon="-1.1958831"/>
+            <trkpt lat="54.4187364" lon="-1.1959499"/>
+            <trkpt lat="54.4195057" lon="-1.1950679"/>
+            <trkpt lat="54.4203941" lon="-1.1935287"/>
+        </trkseg>
+    </trk>
+</gpx>

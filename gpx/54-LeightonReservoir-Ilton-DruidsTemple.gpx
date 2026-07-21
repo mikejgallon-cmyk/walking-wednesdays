@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="OS Maps - Web" xmlns="http://www.topografix.com/GPX/1/1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+xmlns:gs="http://www.topografix.com/GPX/gpx_style/0/2"
+xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1"
+xmlns:os="https://ordnancesurvey.co.uk/public/schema/route/0.1">
+    <metadata>
+        <name>Leighton Reservoir-Ilton-Druid's Temple</name>
+        <desc></desc>
+        <bounds minlat="54.1741261" minlon="-1.7694262" maxlat="54.2116094" maxlon="-1.7101553"/>
+        <extensions>
+            <os:version>2.0</os:version>
+            <os:surface_types>
+                <os:surface_type>4</os:surface_type>
+            </os:surface_types>
+            <os:point lat="54.2038312" lon="-1.7636024" type="start"/>
+            <os:point lat="54.2037936" lon="-1.7627441" type="end"/>
+            <os:activity>ON_FOOT_WALKING</os:activity>
+            <os:difficulty>UNKNOWN</os:difficulty>
+            <os:paths>
+                <os:path start="0" end="72" type="plotted"/>
+            </os:paths>
+            <os:distance>15313.5795317</os:distance>
+            <os:elevation_ascent>362.5900000</os:elevation_ascent>
+            <os:route_type>SINGLE</os:route_type>
+        </extensions>
+    </metadata>
+    <wpt lat="54.2038312" lon="-1.7636024"/>
+    <wpt lat="54.2026449" lon="-1.7636091"/>
+    <wpt lat="54.2024241" lon="-1.7610350"/>
+    <wpt lat="54.2003411" lon="-1.7620894"/>
+    <wpt lat="54.1973251" lon="-1.7640073"/>
+    <wpt lat="54.1939886" lon="-1.7675208"/>
+    <wpt lat="54.1930936" lon="-1.7694262"/>
+    <wpt lat="54.1916501" lon="-1.7665530"/>
+    <wpt lat="54.1900277" lon="-1.7641714"/>
+    <wpt lat="54.1893801" lon="-1.7639299"/>
+    <wpt lat="54.1883735" lon="-1.7639357"/>
+    <wpt lat="54.1797421" lon="-1.7621462"/>
+    <wpt lat="54.1776253" lon="-1.7643032"/>
+    <wpt lat="54.1741384" lon="-1.7643843"/>
+    <wpt lat="54.1741261" lon="-1.7581954"/>
+    <wpt lat="54.1778445" lon="-1.7482460"/>
+    <wpt lat="54.1802665" lon="-1.7376288"/>
+    <wpt lat="54.1803329" lon="-1.7351157"/>
+    <wpt lat="54.1806179" lon="-1.7339494"/>
+    <wpt lat="54.1835208" lon="-1.7298856"/>
+    <wpt lat="54.1848137" lon="-1.7293255"/>
+    <wpt lat="54.1871106" lon="-1.7275942"/>
+    <wpt lat="54.1906575" lon="-1.7222990"/>
+    <wpt lat="54.1925173" lon="-1.7181792"/>
+    <wpt lat="54.1975020" lon="-1.7129338"/>
+    <wpt lat="54.1982956" lon="-1.7140933"/>
+    <wpt lat="54.1985148" lon="-1.7155633"/>
+    <wpt lat="54.1995199" lon="-1.7149432"/>
+    <wpt lat="54.2000896" lon="-1.7126093"/>
+    <wpt lat="54.2002994" lon="-1.7101553"/>
+    <wpt lat="54.2009507" lon="-1.7119289"/>
+    <wpt lat="54.2014238" lon="-1.7143170"/>
+    <wpt lat="54.2031494" lon="-1.7143664"/>
+    <wpt lat="54.2027570" lon="-1.7156568"/>
+    <wpt lat="54.2035486" lon="-1.7159580"/>
+    <wpt lat="54.2032632" lon="-1.7168797"/>
+    <wpt lat="54.2025450" lon="-1.7171912"/>
+    <wpt lat="54.2019356" lon="-1.7179312"/>
+    <wpt lat="54.2013631" lon="-1.7191001"/>
+    <wpt lat="54.2037844" lon="-1.7246026"/>
+    <wpt lat="54.2033909" lon="-1.7254637"/>
+    <wpt lat="54.2046180" lon="-1.7276018"/>
+    <wpt lat="54.2036167" lon="-1.7299386"/>
+    <wpt lat="54.2041596" lon="-1.7315907"/>
+    <wpt lat="54.2039859" lon="-1.7342900"/>
+    <wpt lat="54.2018957" lon="-1.7319733"/>
+    <wpt lat="54.2017922" lon="-1.7339362"/>
+    <wpt lat="54.2024780" lon="-1.7352195"/>
+    <wpt lat="54.2028762" lon="-1.7364433"/>
+    <wpt lat="54.2040986" lon="-1.7364968"/>
+    <wpt lat="54.2054982" lon="-1.7353841"/>
+    <wpt lat="54.2055301" lon="-1.7335442"/>
+    <wpt lat="54.2059206" lon="-1.7313340"/>
+    <wpt lat="54.2085165" lon="-1.7347516"/>
+    <wpt lat="54.2085923" lon="-1.7365296"/>
+    <wpt lat="54.2090618" lon="-1.7375079"/>
+    <wpt lat="54.2093194" lon="-1.7402661"/>
+    <wpt lat="54.2091184" lon="-1.7471975"/>
+    <wpt lat="54.2099848" lon="-1.7489094"/>
+    <wpt lat="54.2097357" lon="-1.7501375"/>
+    <wpt lat="54.2109952" lon="-1.7507432"/>
+    <wpt lat="54.2116094" lon="-1.7522115"/>
+    <wpt lat="54.2080538" lon="-1.7538886"/>
+    <wpt lat="54.2052543" lon="-1.7561129"/>
+    <wpt lat="54.2043246" lon="-1.7586325"/>
+    <wpt lat="54.2037936" lon="-1.7627441"/>
+    <trk>
+        <name>Leighton Reservoir-Ilton-Druid's Temple</name>
+        <trkseg>
+            <trkpt lat="54.2038312" lon="-1.7636024"/>
+            <trkpt lat="54.2026449" lon="-1.7636091"/>
+            <trkpt lat="54.2024241" lon="-1.7610350"/>
+            <trkpt lat="54.2003411" lon="-1.7620894"/>
+            <trkpt lat="54.1973251" lon="-1.7640073"/>
+            <trkpt lat="54.1939886" lon="-1.7675208"/>
+            <trkpt lat="54.1930936" lon="-1.7694262"/>
+            <trkpt lat="54.1916501" lon="-1.7665530"/>
+            <trkpt lat="54.1900277" lon="-1.7641714"/>
+            <trkpt lat="54.1893801" lon="-1.7639299"/>
+            <trkpt lat="54.1883735" lon="-1.7639357"/>
+            <trkpt lat="54.1832668" lon="-1.7629841"/>
+            <trkpt lat="54.1797421" lon="-1.7621462"/>
+            <trkpt lat="54.1776253" lon="-1.7643032"/>
+            <trkpt lat="54.1741384" lon="-1.7643843"/>
+            <trkpt lat="54.1741261" lon="-1.7581954"/>
+            <trkpt lat="54.1778445" lon="-1.7482460"/>
+            <trkpt lat="54.1802665" lon="-1.7376288"/>
+            <trkpt lat="54.1803329" lon="-1.7351157"/>
+            <trkpt lat="54.1806179" lon="-1.7339494"/>
+            <trkpt lat="54.1815135" lon="-1.7325340"/>
+            <trkpt lat="54.1825534" lon="-1.7313628"/>
+            <trkpt lat="54.1835208" lon="-1.7298856"/>
+            <trkpt lat="54.1848137" lon="-1.7293255"/>
+            <trkpt lat="54.1871106" lon="-1.7275942"/>
+            <trkpt lat="54.1906575" lon="-1.7222990"/>
+            <trkpt lat="54.1925173" lon="-1.7181792"/>
+            <trkpt lat="54.1975020" lon="-1.7129338"/>
+            <trkpt lat="54.1982956" lon="-1.7140933"/>
+            <trkpt lat="54.1985148" lon="-1.7155633"/>
+            <trkpt lat="54.1995199" lon="-1.7149432"/>
+            <trkpt lat="54.2000896" lon="-1.7126093"/>
+            <trkpt lat="54.2002994" lon="-1.7101553"/>
+            <trkpt lat="54.2009507" lon="-1.7119289"/>
+            <trkpt lat="54.2014238" lon="-1.7143170"/>
+            <trkpt lat="54.2022145" lon="-1.7142502"/>
+            <trkpt lat="54.2031494" lon="-1.7143664"/>
+            <trkpt lat="54.2027570" lon="-1.7156568"/>
+            <trkpt lat="54.2035486" lon="-1.7159580"/>
+            <trkpt lat="54.2032632" lon="-1.7168797"/>
+            <trkpt lat="54.2025450" lon="-1.7171912"/>
+            <trkpt lat="54.2019356" lon="-1.7179312"/>
+            <trkpt lat="54.2013631" lon="-1.7191001"/>
+            <trkpt lat="54.2037844" lon="-1.7246026"/>
+            <trkpt lat="54.2033909" lon="-1.7254637"/>
+            <trkpt lat="54.2046180" lon="-1.7276018"/>
+            <trkpt lat="54.2036167" lon="-1.7299386"/>
+            <trkpt lat="54.2041596" lon="-1.7315907"/>
+            <trkpt lat="54.2039859" lon="-1.7342900"/>
+            <trkpt lat="54.2018957" lon="-1.7319733"/>
+            <trkpt lat="54.2017922" lon="-1.7339362"/>
+            <trkpt lat="54.2024780" lon="-1.7352195"/>
+            <trkpt lat="54.2028762" lon="-1.7364433"/>
+            <trkpt lat="54.2040986" lon="-1.7364968"/>
+            <trkpt lat="54.2054982" lon="-1.7353841"/>
+            <trkpt lat="54.2055301" lon="-1.7335442"/>
+            <trkpt lat="54.2059206" lon="-1.7313340"/>
+            <trkpt lat="54.2078674" lon="-1.7338358"/>
+            <trkpt lat="54.2085165" lon="-1.7347516"/>
+            <trkpt lat="54.2085923" lon="-1.7365296"/>
+            <trkpt lat="54.2090618" lon="-1.7375079"/>
+            <trkpt lat="54.2093194" lon="-1.7402661"/>
+            <trkpt lat="54.2092911" lon="-1.7438233"/>
+            <trkpt lat="54.2091184" lon="-1.7471975"/>
+            <trkpt lat="54.2099848" lon="-1.7489094"/>
+            <trkpt lat="54.2097357" lon="-1.7501375"/>
+            <trkpt lat="54.2109952" lon="-1.7507432"/>
+            <trkpt lat="54.2116094" lon="-1.7522115"/>
+            <trkpt lat="54.2080538" lon="-1.7538886"/>
+            <trkpt lat="54.2052543" lon="-1.7561129"/>
+            <trkpt lat="54.2043246" lon="-1.7586325"/>
+            <trkpt lat="54.2037936" lon="-1.7627441"/>
+        </trkseg>
+    </trk>
+</gpx>
