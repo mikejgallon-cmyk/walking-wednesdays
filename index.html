@@ -313,6 +313,14 @@ document.head.appendChild(link);
     </div>
   </div>
 
+  <!-- SHARED WALK RETURN BANNER -->
+  <div id="shared-return-banner" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:#F0E8F8;border-bottom:1px solid #C4A8D4;padding:8px 12px;font-family:'Inter',sans-serif;">
+    <button onclick="returnToSharedRoute()" style="flex:1;text-align:left;background:none;border:none;padding:0;cursor:pointer;font-size:12.5px;font-weight:700;color:#5C3D6E;font-family:'Inter',sans-serif;">
+      ↩ Back to shared walk: <span id="shared-return-name"></span>
+    </button>
+    <button onclick="dismissSharedBanner()" aria-label="Dismiss" style="background:none;border:none;color:#5C3D6E;font-size:14px;font-weight:700;cursor:pointer;padding:2px 4px;line-height:1;">✕</button>
+  </div>
+
   <!-- MAIN -->
   <main id="main">
 
@@ -539,6 +547,138 @@ const ROUTES = [
     restPoints: "",
     notes: "",
     metOfficeCode: "gcxjx267j",
+  },
+
+  {
+    routeNo: "26",
+    dateWalked: "8 Jan 2020",
+    area: "Cleveland Hills",
+    name: "Osmotherley-Chequers-Cod Beck",
+    type: "Circular",
+    start: "Osmotherley",
+    finish: "Osmotherley",
+    distance: "7.1",
+    ascent: "1070",
+    difficulty: "",
+    duration: "2h 54min",
+    lat: 54.37017,
+    lng: -1.29841,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/26-Osmotherley-Chequers-CodBeck.gpx",
+    description: "",
+    carParking: "Free roadside parking",
+    restPoints: "Seats in Osmotherley and above Chequers",
+    notes: "Repeat of first  walk in 2019",
+    metOfficeCode: "gcxj6f80h",
+  },
+
+  {
+    routeNo: "27",
+    dateWalked: "22 Jan 2020",
+    area: "Cleveland Hills",
+    name: "Moor Gate-Bilsdale Mast-Ellers Wood",
+    type: "Circular",
+    start: "Moor Gate",
+    finish: "Moor Gate",
+    distance: "10.1",
+    ascent: "1110",
+    difficulty: "",
+    duration: "3h 55min",
+    lat: 54.31791,
+    lng: -1.17162,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/27-MoorGate-BilsdaleMast-EllersWood.gpx",
+    description: "",
+    carParking: "Free roadside parking",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxhzs8fm",
+  },
+
+  {
+    routeNo: "28",
+    dateWalked: "5 Feb 2020",
+    area: "Cleveland Hills",
+    name: "Lord Stones-Chop Gate-Green Howe",
+    type: "Circular",
+    start: "Lord Stones",
+    finish: "Lord Stones",
+    distance: "9.5",
+    ascent: "1750",
+    difficulty: "",
+    duration: "4h 2min",
+    lat: 54.41972,
+    lng: -1.1928,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/28-LordsStones-ChopGate-GreenHowe.gpx",
+    description: "",
+    carParking: "Free car park.",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxjx267j",
+  },
+
+  {
+    routeNo: "29",
+    dateWalked: "19 Feb 2020",
+    area: "Cleveland Hills",
+    name: "Square Corner-Shooting House-Cod Beck",
+    type: "Circular",
+    start: "Square Corner",
+    finish: "Square Corner",
+    distance: "8.2",
+    ascent: "920",
+    difficulty: "",
+    duration: "3h 12min",
+    lat: 54.35649,
+    lng: -1.26345,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/29-SquareCorner-ShootingHouse-CodBeck.gpx",
+    description: "",
+    carParking: "Free car park at Square Coner.",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxj6f80h",
+  },
+
+  {
+    routeNo: "30",
+    dateWalked: "4 Mar 2020",
+    area: "Cleveland Hills",
+    name: "Chop Gate-Tripsdale",
+    type: "Circular",
+    start: "Chop Gate",
+    finish: "Chop Gate",
+    distance: "8.7",
+    ascent: "1430",
+    difficulty: "",
+    duration: "3h 37min",
+    lat: 54.386797,
+    lng: -1.140586,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/30-ChopGate-Tripsdale.gpx",
+    description: "",
+    carParking: "Village hall car park.  Charges apply",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxjx267j",
+  },
+
+  {
+    routeNo: "31",
+    dateWalked: "18 Mar 2020",
+    area: "Cleveland Hills",
+    name: "Swainby-Huwthwaite Green-Scugdale Hall-Carlton Bank",
+    type: "Circular",
+    start: "Swainby",
+    finish: "Swainby",
+    distance: "8.1",
+    ascent: "1480",
+    difficulty: "",
+    duration: "3h 26min",
+    lat: 54.412622,
+    lng: -1.267228,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/31-Swainby-HuwthwaiteGreen-ScugdaleHall-CarltonBank.gpx",
+    description: "",
+    carParking: "Free roadside parking",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxjfbwyu",
   },
 
   {
@@ -1642,6 +1782,28 @@ const ROUTES = [
   },
 
   {
+    routeNo: "142",
+    dateWalked: "8 Jan 2025",
+    area: "NY Moors",
+    name: "Danby-Clitherbeck-Danby Beacon-Houlsyke",
+    type: "Circular",
+    start: "Danby",
+    finish: "Danby",
+    distance: "8.9",
+    ascent: "950",
+    difficulty: "",
+    duration: "3h 27min",
+    lat: 54.47405,
+    lng: -0.90866,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/142-Danby-Clitherbeck-DanbyBeacon-Houlsyke.gpx",
+    description: "",
+    carParking: "Free car park at the top of Danby Bank",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxmfdsv7",
+  },
+
+  {
     routeNo: "143",
     dateWalked: "22 Jan 2025",
     area: "Hambleton Hills",
@@ -1661,6 +1823,72 @@ const ROUTES = [
     restPoints: "",
     notes: "",
     metOfficeCode: "gcxhzs8fm",
+  },
+
+  {
+    routeNo: "145",
+    dateWalked: "19 Feb 2025",
+    area: "Tees Valley",
+    name: "Ingleby Barwick-Kirklevington-Hilton",
+    type: "Circular",
+    start: "Ingleby Barwick",
+    finish: "Ingleby Barwick",
+    distance: "9",
+    ascent: "570",
+    difficulty: "",
+    duration: "3h 17min",
+    lat: 54.50797,
+    lng: -1.30501,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/145-Ingleby Barwick-Kirklevington-Hilton.gpx",
+    description: "",
+    carParking: "Free car park of Winfmill Way",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxn14nxh",
+  },
+
+  {
+    routeNo: "146",
+    dateWalked: "5 Mar 2025",
+    area: "Cleveland Hills",
+    name: "Bank Foot-Greenhow Plantation-Bloworth Crossing",
+    type: "Circular",
+    start: "Bank Foot",
+    finish: "Bank Foot",
+    distance: "9.8",
+    ascent: "1270",
+    difficulty: "",
+    duration: "3h 54min",
+    lat: 54.44689,
+    lng: -1.08811,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/146-BankFoot-GreenhowPlantation-BloworthCrossing.gpx",
+    description: "",
+    carParking: "Roadside parking",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxjznqcy",
+  },
+
+  {
+    routeNo: "147",
+    dateWalked: "19 Mar 2025",
+    area: "NY Moors",
+    name: "Rosedale Abbey-Hartoft Rigg-Hartoft End",
+    type: "Circular",
+    start: "Rosedale",
+    finish: "Rosedale",
+    distance: "9",
+    ascent: "1290",
+    difficulty: "",
+    duration: "3h 39min",
+    lat: 54.35281,
+    lng: -0.88674,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/147-Rosedale Abbey-Hartoft Rigg-Hartoft End.gpx",
+    description: "",
+    carParking: "Free roadside parking",
+    restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxm4j6mx",
   },
 
   {
@@ -2251,11 +2479,11 @@ const ROUTES = [
     lng: -1.307867,
     gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/182-InglebyCross-Osmotherley-Chequers-ScarthNick.gpx",
     description: "",
-    carParking: "Layby",
+    carParking: "Roadside layby  on minor road",
     restPoints: "",
     notes: "",
     metOfficeCode: "gcxj6f80h",
-   },
+  },
 
   {
     routeNo: "183",
@@ -2265,16 +2493,38 @@ const ROUTES = [
     type: "Circular",
     start: "Ingleby Arncliffe",
     finish: "Ingleby Arncliffe",
-    distance: "7.86",
+    distance: "7.8",
     ascent: "1300",
     difficulty: "",
-    duration: "3h 16min",
+    duration: "3h 15min",
     lat: 54.399929,
     lng: -1.308197,
     gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/183-Ingleby Cross-Scarth Nick-Cod Beck.gpx",
     description: "",
     carParking: "Roadside layby  on minor road",
     restPoints: "",
+    notes: "",
+    metOfficeCode: "gcxj6f80h",
+  },
+
+  {
+    routeNo: "184",
+    dateWalked: "26 Aug 2026",
+    area: "Cleveland Hills",
+    name: "Square Corner-Shooting House-Sheep Wash-Oak Dale",
+    type: "Circular",
+    start: "Square Corner",
+    finish: "Square Corner",
+    distance: "8.6",
+    ascent: "980",
+    difficulty: "",
+    duration: "3h 21min",
+    lat: 54.35655,
+    lng: -1.263681,
+    gpxUrl: "https://raw.githubusercontent.com/mikejgallon-cmyk/walking-wednesdays/refs/heads/main/gpx/184-SquareCorner-ShootingHouse-SheepWash-OakDale.gpx",
+    description: "",
+    carParking: "Free car park at Square Coner.",
+    restPoints: "Benches on Stony Ridge and Green Lane",
     notes: "",
     metOfficeCode: "gcxj6f80h",
   }
@@ -2284,6 +2534,7 @@ const ROUTES = [
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
 let currentRoute = null;
+let sharedRouteNo = null;
 let filteredRoutes = [...ROUTES];
 let leafletMap = null; window.leafletMap = null;
 let markers = {};
@@ -2765,6 +3016,8 @@ function openDetail(routeNo){
   let r=ROUTES.find(x=>x.routeNo===routeNo||x.routeNo===String(routeNo));
   if(!r&&!isNaN(routeNo)) r=ROUTES[parseInt(routeNo)];
   if(!r)return;
+  if(sharedRouteNo&&r.routeNo!==sharedRouteNo) sharedRouteNo=null;
+  hideSharedBanner();
   currentRoute=r;
   const d=dm(r.difficulty);
   try{
@@ -3223,6 +3476,39 @@ function closeDetail(){
   document.body.style.overflow="";
   currentRoute=null;
   closeRoutePreview();
+  // Tidy the address bar so a lingering ?route= doesn't get shared/bookmarked by accident.
+  if(window.location.search.includes("route=")){
+    history.replaceState(null,"",window.location.pathname);
+  }
+  updateSharedBanner();
+}
+
+function updateSharedBanner(){
+  const banner=document.getElementById("shared-return-banner");
+  if(!banner)return;
+  if(sharedRouteNo){
+    const r=ROUTES.find(x=>x.routeNo===sharedRouteNo);
+    if(r){
+      document.getElementById("shared-return-name").textContent=r.name;
+      banner.style.display="flex";
+      return;
+    }
+  }
+  banner.style.display="none";
+}
+
+function hideSharedBanner(){
+  const banner=document.getElementById("shared-return-banner");
+  if(banner) banner.style.display="none";
+}
+
+function dismissSharedBanner(){
+  sharedRouteNo=null;
+  hideSharedBanner();
+}
+
+function returnToSharedRoute(){
+  if(sharedRouteNo) openDetail(sharedRouteNo);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3439,7 +3725,10 @@ if("serviceWorker" in navigator){
 function checkDeepLink(){
   const p=new URLSearchParams(window.location.search);
   const rno=p.get("route");
-  if(rno&&ROUTES.find(r=>r.routeNo===rno)) openDetail(rno);
+  if(rno&&ROUTES.find(r=>r.routeNo===rno)){
+    sharedRouteNo=rno;
+    openDetail(rno);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
