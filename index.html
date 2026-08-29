@@ -2527,7 +2527,7 @@ const ROUTES = [
     restPoints: "Benches on Stony Ridge and Green Lane",
     notes: "",
     metOfficeCode: "gcxj6f80h",
- },
+  },
 
   {
     routeNo: "185",
@@ -2551,7 +2551,6 @@ const ROUTES = [
     metOfficeCode: "gcxq7g11t",
   }
 ];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2745,7 +2744,7 @@ function applyFilters(){
     const {field,dir}=currentSort;
     filteredRoutes.sort((a,b)=>{
       let av=a[field]||"", bv=b[field]||"";
-      if(field==="distance"||field==="ascent"){av=parseFloat(av)||0;bv=parseFloat(bv)||0;}
+      if(field==="distance"||field==="ascent"||field==="routeNo"){av=parseFloat(av)||0;bv=parseFloat(bv)||0;}
       else if(field==="dateWalked"){
         // Parse to timestamp for correct chronological ordering
         function parseRouteDate(d){
